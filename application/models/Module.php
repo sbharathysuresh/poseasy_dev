@@ -67,7 +67,7 @@ class Module extends CI_Model
 	{
 		$menus = array('home', 'both');
 		//hide giftcards and messages menu line 70 and 76
-		$notmenus = array('giftcards', 'messages');
+		$notmenus = array('giftcards', 'messages','item_kits');
 		$this->db->from('modules');
 		$this->db->join('permissions', 'permissions.permission_id = modules.module_id');
 		$this->db->join('grants', 'permissions.permission_id = grants.permission_id');
