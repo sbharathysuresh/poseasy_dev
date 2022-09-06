@@ -28,18 +28,16 @@ class Item extends CI_Model
 
 	// editable form
 		public function view_items() {
-			//$query=$this->db->get("items");
-			//$item_results = $query->result();
-			//var_dump($Items);
-    		$this->db->select('*');
+			$this->db->select('*');
 			$this->db->from('items');
 			$this->db->join('suppliers', 'suppliers.person_id = items.supplier_id');
 			$query = $this->db->get();
 			$item_results = $query->result();
-			//var_dump($query->result());
 			return $item_results;
 		}
 
+       
+		
 	/*
 	Determines if a given item_number exists
 	*/
@@ -110,6 +108,9 @@ class Item extends CI_Model
 			$this->db->select('MAX(items.unit_price) AS unit_price');
 			$this->db->select('MAX(items.reorder_level) AS reorder_level');
 			$this->db->select('MAX(items.receiving_quantity) AS receiving_quantity');
+			$this->db->select('MAX(items.add_quantity) AS add_quantity');
+			$this->db->select('MAX(items.less_quantity) AS less_quantity');
+			$this->db->select('MAX(items.current_quantity) AS current_quantity');
 			$this->db->select('MAX(items.pic_filename) AS pic_filename');
 			$this->db->select('MAX(items.allow_alt_description) AS allow_alt_description');
 			$this->db->select('MAX(items.is_serialized) AS is_serialized');
@@ -142,27 +143,15 @@ class Item extends CI_Model
 			$this->db->select('MAX(item_quantities.item_id) AS qty_item_id');
 			$this->db->select('MAX(item_quantities.location_id) AS location_id');
 			$this->db->select('MAX(item_quantities.quantity) AS quantity');
+			$this->db->select('MAX(items.add_quantity) AS add_quantity');
+			$this->db->select('MAX(items.less_quantity) AS less_quantity');
+			$this->db->select('MAX(items.current_quantity) AS current_quantity');
 			}
 		}
 
 		$this->db->from('items AS items');
 		$this->db->join('suppliers AS suppliers', 'suppliers.person_id = items.supplier_id', 'left');
 		$this->db->join('inventory AS inventory', 'inventory.trans_items = items.item_id');
-
-		if($filters['stock_location_id'] > -1)
-		{
-			$this->db->join('item_quantities AS item_quantities', 'item_quantities.item_id = items.item_id');
-			$this->db->where('location_id', $filters['stock_location_id']);
-		}
-
-		if(empty($this->config->item('date_or_time_format')))
-		{
-			$this->db->where('DATE_FORMAT(trans_date, "%Y-%m-%d") BETWEEN ' . $this->db->escape($filters['start_date']) . ' AND ' . $this->db->escape($filters['end_date']));
-		}
-		else
-		{
-			$this->db->where('trans_date BETWEEN ' . $this->db->escape(rawurldecode($filters['start_date'])) . ' AND ' . $this->db->escape(rawurldecode($filters['end_date'])));
-		}
 
 		$attributes_enabled = count($filters['definition_ids']) > 0;
 
@@ -244,6 +233,20 @@ class Item extends CI_Model
 
 		return $this->db->get();
 	}
+
+	//editable text
+	 public function save_qty_db($item_id,$receiving_quantity,$items_add_quantity,$items_less_quantity,$items_current_quantity){
+			//var_dump($data);
+			$data = array(
+				'receiving_quantity' => $receiving_quantity,
+				'add_quantity' => $items_add_quantity,
+				'less_quantity' => $items_less_quantity,
+				'current_quantity' => $items_current_quantity);
+			//var_dump($item_id);
+			$this->db->where('item_id', $item_id);			
+			$result = $this->db->update('ospos_items', $data);
+			return $result;
+		}
 
 	/*
 	Returns all the items
