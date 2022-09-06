@@ -20,7 +20,7 @@ class Items extends Secure_Controller
 			$data['stock_locations'] = $this->xss_clean($this->Stock_location->get_allowed_locations());
 			$data['items_data'] = $this->Item->view_items();
 			$data['categories'] = $this->Supplier->get_categories();
-
+			
 		//Filters that will be loaded in the multiselect dropdown
 		$data['filters'] = array(
 			'empty_upc' => $this->lang->line('items_empty_upc_items'),
@@ -503,6 +503,7 @@ class Items extends Secure_Controller
 		$this->load->view('items/form_bulk', $data);
 	}
 
+
 	public function save($item_id = NEW_ITEM)
 	{
 		$upload_success = $this->handle_image_upload();
@@ -607,6 +608,8 @@ class Items extends Secure_Controller
 				$success &= $this->Item_taxes->save($items_taxes_data, $item_id);
 			}
 
+			
+
 			//Save item quantity
 			$stock_locations = $this->Stock_location->get_undeleted_all()->result_array();
 			foreach($stock_locations as $location)
@@ -641,6 +644,7 @@ class Items extends Secure_Controller
 					$success &= $this->Inventory->insert($inv_data);
 				}
 			}
+
 
 			// Save item attributes
 			$attribute_links = $this->input->post('attribute_links') !== NULL ? $this->input->post('attribute_links') : [];
@@ -679,6 +683,17 @@ class Items extends Secure_Controller
 
 			echo json_encode(array('success' => FALSE, 'message' => $message, 'id' => NEW_ITEM));
 		}
+	}
+	
+	// update items auto
+	public function save_qty() {
+		$item_id = $_POST['item_id'];
+		$receiving_quantity = $_POST['receiving_quantity'];
+		$items_add_quantity = $_POST['items_add_quantity'];
+		$items_less_quantity = $_POST['items_less_quantity'];
+		$items_current_quantity = $_POST['items_current_quantity'];
+						
+		$this->Item->save_qty_db($item_id,$receiving_quantity,$items_add_quantity,$items_less_quantity,$items_current_quantity);
 	}
 
 	public function check_item_number()
