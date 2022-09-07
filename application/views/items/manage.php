@@ -2,6 +2,7 @@
 <script type="text/javascript">
 $(document).ready(function()
 {
+	$('#table').hide();
     <?php $this->load->view('partial/bootstrap_tables_locale'); ?>
 
     table_support.init({
