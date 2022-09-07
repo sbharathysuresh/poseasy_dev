@@ -118,7 +118,7 @@ $(document).ready(function()
                
                 <?php 
              	foreach ($items_data as $item) { 
-			
+			 $item_id = $item->item_id;
                 ?>
                 <tr>
                 <td><?php echo form_checkbox(array('id'=>'item_select'));?></td>
@@ -139,7 +139,7 @@ $(document).ready(function()
                 <td><?php echo $item->pack_type ;?></td>
                 <td><?php  echo form_submit(array(
 				'name' => 'submit_qty',
-// 				'id' => '<?php echo $item->item_id; ?>',
+// 				'id' => $item_id,
 				'value' => $this->lang->line('common_submit'),'class' => 'btn btn-primary btn-sm pull-right'));?></td>
                 <td></td>
                 <td></td>
