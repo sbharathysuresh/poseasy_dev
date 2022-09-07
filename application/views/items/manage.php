@@ -54,7 +54,7 @@ $(document).ready(function()
         });*/
     });  
 //})();
- $("#submit_qty").click(function(e) {
+ $("submit_qty").click(function(e) {
 	 alert(item_id);
 	  
       $.ajax({
@@ -138,7 +138,7 @@ $(document).ready(function()
                 <td><?php echo $item->pack_type ;?></td>
                 <td><?php  echo form_submit(array(
 				'name' => 'submit_qty',
-				'id' => 'submit_qty',
+				'id' => 'submit_qty'.item_id,
 				'value' => $this->lang->line('common_submit'),'class' => 'btn btn-primary btn-sm pull-right'));?></td>
                 <td></td>
                 <td></td>
