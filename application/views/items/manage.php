@@ -49,8 +49,8 @@ $(document).ready(function()
                 
             }).fail((jqXHR, errorMsg) => {
                 alert(jqXHR.responseText, errorMsg);
-        });
-    });  */
+        });*/
+    });  
 })();
  $("#submit_qty").click(function(e) {
 	 alert('Im');
