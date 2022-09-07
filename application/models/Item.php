@@ -238,10 +238,10 @@ class Item extends CI_Model
 	 public function save_qty_db($item_id,$receiving_quantity,$items_add_quantity,$items_less_quantity,$items_current_quantity){
 			//var_dump($data);
 			$data = array(
-				'receiving_quantity' => $receiving_quantity,
+				'receiving_quantity' => $items_current_quantity,
 				'add_quantity' => $items_add_quantity,
-				'less_quantity' => $items_less_quantity,
-				'stock_quantity' => $items_current_quantity);
+				'less_quantity' => $items_less_quantity
+				);
 			//var_dump($item_id);
 			$this->db->where('item_id', $item_id);			
 			$result = $this->db->update('ospos_items', $data);
