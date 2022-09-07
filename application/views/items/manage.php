@@ -34,7 +34,7 @@ $(document).ready(function()
              receiving_quantity = parseFloat(row.find("#receiving_quantity").text());
              items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
              items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
-             item_id = row.find("td:eq(1)").text();
+             item_id = row.find("td:eq(0)").text();
              final_val = ((parseFloat(receiving_quantity) + parseFloat(items_add_quantity))-parseFloat(items_less_quantity));
           // alert(final_val);            
             var url='<?php echo site_url("$controller_name/save_qty/item_id"); ?>';
@@ -122,7 +122,7 @@ $(document).ready(function()
 			 $item_id = $item->item_id;
                 ?>
                 <tr>
-                <td><?php echo form_checkbox(array('id'=>'item_select'));?></td>
+                
                 <td id='item_id'><?php echo $item->item_id ; ?></td>
                 <td></td>
                 <td><?php echo $item->company_name ;?></td>
