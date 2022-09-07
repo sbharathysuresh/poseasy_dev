@@ -553,6 +553,7 @@ $(document).ready(function()
 						{
 							dialog_support.hide();
 						}
+						alert('iniside table refresh');
 						table_support.handle_submit('<?php echo site_url('items'); ?>', response, stay_open);
 						
 					},
