@@ -2,7 +2,7 @@
 <script type="text/javascript">
 $(document).ready(function()
 {
-	var receiving_quantity,items_add_quantity,items_less_quantity,item_id,final_val;
+	var receiving_quantity,items_add_quantity,items_less_quantity,item_id,final_val,i;
 	$('#table').hide();
     <?php $this->load->view('partial/bootstrap_tables_locale'); ?>
 
@@ -54,12 +54,12 @@ $(document).ready(function()
     });  
 })();
  $("#submit_qty").click(function(e) {
-	 alert('Im');
+	 alert(item_id);
 	  
       $.ajax({
 			type: 'POST',
 			url: '<?php echo site_url("$controller_name/save_qty/item_id"); ?>',
-            data: {'item_id':item_id,'receiving_quantity':receiving_quantity,'items_add_quantity':items_add_quantity,'items_less_quantity':items_less_quantity,'items_current_quantity':items_current_quantity},   
+            data: {'item_id':item_id,'receiving_quantity':receiving_quantity,'items_add_quantity':items_add_quantity,'items_less_quantity':items_less_quantity,'items_current_quantity':final_val},   
             datatype : 'json',
             
             }).done(function (msg) {
