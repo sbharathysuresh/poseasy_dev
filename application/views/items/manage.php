@@ -65,6 +65,7 @@ $(document).ready(function()
             
             }).done(function (msg) {
                 alert("Data Saved: " + msg);
+	      window.location.reload();
                 
             }).fail((jqXHR, errorMsg) => {
                 alert(jqXHR.responseText, errorMsg);
