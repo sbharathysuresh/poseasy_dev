@@ -553,8 +553,9 @@ $(document).ready(function()
 						{
 							dialog_support.hide();
 						}
-						alert('iniside table refresh');
+						//alert('iniside table refresh');
 						table_support.handle_submit('<?php echo site_url('items'); ?>', response, stay_open);
+						 window.location.reload();
 						init_validation();
 					},
 					dataType: 'json'
@@ -669,7 +670,7 @@ $(document).ready(function()
 	};
 
 	init_validation();
-	 window.location.reload();
+	
 });
 </script>
 
