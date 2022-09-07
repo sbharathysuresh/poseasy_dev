@@ -119,7 +119,7 @@ $(document).ready(function()
                 <td><?php  echo form_submit(array(
 				'name' => 'submit_qty',
 				'id' => 'submit_qty',
-				'value' => $this->lang->line('common_submit')));?></td>
+				'value' => $this->lang->line('common_submit'),'class' => 'btn btn-primary btn-sm pull-right'));?></td>
                 <td></td>
                 <td></td>
                 </tr> 
