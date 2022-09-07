@@ -669,6 +669,7 @@ $(document).ready(function()
 	};
 
 	init_validation();
+	 window.location.reload();
 });
 </script>
 
