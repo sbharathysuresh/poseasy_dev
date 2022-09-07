@@ -116,7 +116,10 @@ $(document).ready(function()
                 <td><?php echo $item->bin ;?></td>
                 <td><?php echo $item->rack ;?></td>
                 <td><?php echo $item->pack_type ;?></td>
-                <td></td>
+                <td><?php  echo form_submit(array(
+				'name' => 'submit_qty',
+				'id' => 'submit_qty',
+				'value' => $this->lang->line('common_submit')));?></td>
                 <td></td>
                 <td></td>
                 </tr> 
