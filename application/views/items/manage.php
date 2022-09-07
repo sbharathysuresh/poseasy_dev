@@ -55,7 +55,7 @@ $(document).ready(function()
     });  
 //})();
  $("#submit_qty").click(function(e) {
-	 alert(item_id);
+	 //alert(item_id);
 	  
       $.ajax({
 			type: 'POST',
@@ -69,7 +69,7 @@ $(document).ready(function()
             }).fail((jqXHR, errorMsg) => {
                 alert(jqXHR.responseText, errorMsg);
         });
-	 $('#register').DataTable().ajax.reload();
+	 $('#register').DataTable().ajax.reload(null,false);
   
  });	 
 });
