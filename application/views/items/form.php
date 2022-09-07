@@ -366,7 +366,7 @@
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('items_branch'), 'branch', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-8'>
-			<select name="branch" id="branch" required="" class='form-control'>
+			<select name="branch" id="branch"  class='form-control'>
                 <option value="" >--Select Branch--</option >
                 <option value="Madurai" >Madurai</option>
                 <option value="Salem" >Salem</option>
@@ -415,7 +415,7 @@
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('item_pack_type'), 'pack_type', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-8'>
-			<select name="pack_type" id="pack_type" required="" class='form-control'>
+			<select name="pack_type" id="pack_type"  class='form-control'>
                 <option value="" >--Select Pack Type--</option >
                 <option value="Pieces" >Pieces</option>
                 <option value="Dozens" >Dozens</option>
