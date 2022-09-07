@@ -138,7 +138,7 @@ $(document).ready(function()
                 <td><?php echo $item->pack_type ;?></td>
                 <td><?php  echo form_submit(array(
 				'name' => 'submit_qty',
-// 				'id' => 'submit_qty'.<?php echo item_id; ?>,
+// 				'id' => 'submit_qty'.'<?php echo item_id; ?>',
 				'value' => $this->lang->line('common_submit'),'class' => 'btn btn-primary btn-sm pull-right'));?></td>
                 <td></td>
                 <td></td>
