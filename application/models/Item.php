@@ -245,6 +245,7 @@ class Item extends CI_Model
 			//var_dump($item_id);
 			$this->db->where('item_id', $item_id);			
 			$result = $this->db->update('ospos_items', $data);
+		 var_dump($result);
 			return $result;
 		}
 
