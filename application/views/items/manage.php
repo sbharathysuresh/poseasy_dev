@@ -52,7 +52,9 @@ $(document).ready(function()
         });
     });  
 })();
-
+ $("#submit_qty").on("click", "input","click", function(e) {
+	 alert('Im');
+ });	 
 });
 </script>
 
