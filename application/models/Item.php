@@ -241,7 +241,7 @@ class Item extends CI_Model
 				'receiving_quantity' => $receiving_quantity,
 				'add_quantity' => $items_add_quantity,
 				'less_quantity' => $items_less_quantity,
-				'current_quantity' => $items_current_quantity);
+				'stock_quantity' => $items_current_quantity);
 			//var_dump($item_id);
 			$this->db->where('item_id', $item_id);			
 			$result = $this->db->update('ospos_items', $data);
