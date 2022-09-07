@@ -2,6 +2,7 @@
 <script type="text/javascript">
 $(document).ready(function()
 {
+	var receiving_quantity,items_add_quantity,items_less_quantity,item_id,final_val;
 	$('#table').hide();
     <?php $this->load->view('partial/bootstrap_tables_locale'); ?>
 
@@ -28,11 +29,11 @@ $(document).ready(function()
         
             var row = $(this).closest("tr");
             console.log(row);
-            var receiving_quantity = parseFloat(row.find("#receiving_quantity").text());
-            var items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
-            var items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
-            var item_id = row.find("td:eq(0)").text();
-            var final_val = ((parseFloat(receiving_quantity) + parseFloat(items_add_quantity))-parseFloat(items_less_quantity));
+             receiving_quantity = parseFloat(row.find("#receiving_quantity").text());
+             items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
+             items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
+             item_id = row.find("td:eq(0)").text();
+             final_val = ((parseFloat(receiving_quantity) + parseFloat(items_add_quantity))-parseFloat(items_less_quantity));
            // alert(final_val);            
             var url='<?php echo site_url("$controller_name/save_qty/item_id"); ?>';
             row.find("#items_current_quantity").val(final_val);
@@ -54,16 +55,7 @@ $(document).ready(function()
 })();
  $("#submit_qty").click(function(e) {
 	 alert('Im');
-	 var receiving_quantity = parseFloat(row.find("#receiving_quantity").text());
-            var items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
-            var items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
-            var item_id = row.find("td:eq(0)").text();
-            var final_val = ((parseFloat(receiving_quantity) + parseFloat(items_add_quantity))-parseFloat(items_less_quantity));
-            alert(final_val);            
-            var url='<?php echo site_url("$controller_name/save_qty/item_id"); ?>';
-            row.find("#items_current_quantity").val(final_val);
-            e.preventDefault();
-           
+	  
       $.ajax({
 			type: 'POST',
 			url: '<?php echo site_url("$controller_name/save_qty/item_id"); ?>',
