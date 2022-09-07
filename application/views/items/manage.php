@@ -32,9 +32,9 @@ $(document).ready(function()
              receiving_quantity = parseFloat(row.find("#receiving_quantity").text());
              items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
              items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
-             item_id = row.find("td:eq(0)").text();
+             item_id = row.find("td:eq(1)").text();
              final_val = ((parseFloat(receiving_quantity) + parseFloat(items_add_quantity))-parseFloat(items_less_quantity));
-           alert(final_val);            
+          // alert(final_val);            
             var url='<?php echo site_url("$controller_name/save_qty/item_id"); ?>';
             row.find("#items_current_quantity").val(final_val);
             e.preventDefault();
