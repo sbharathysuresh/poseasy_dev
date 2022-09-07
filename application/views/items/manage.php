@@ -128,7 +128,7 @@ $(document).ready(function()
                 <td id='receiving_quantity'><?php echo $item->receiving_quantity ;?></td>
                 <td><?php echo form_input(array('id'=>'items_add_quantity', 'class'=>'form-control input-sm', 'value'=> '0'));?></td>
                 <td><?php echo form_input(array('id'=>'items_less_quantity', 'class'=>'form-control input-sm', 'value'=> '0'));?></td>
-                <td><?php echo form_input(array('id'=>'items_current_quantity', 'class'=>'form-control input-sm', 'value'=> $item->current_quantity,'readonly'=>true)); ?></td>
+                <td><?php echo form_input(array('id'=>'items_current_quantity', 'class'=>'form-control input-sm', 'value'=> '0','readonly'=>true)); ?></td>
                 <td><?php echo $item->branch ;?></td>
                 <td><?php echo $item->location ;?></td>
                 <td><?php echo $item->bin ;?></td>
