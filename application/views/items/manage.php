@@ -55,7 +55,7 @@ $(document).ready(function()
     });  
 //})();
  $("#submit_qty").click(function(e) {
-	 //alert(item_id);
+	 alert(item_id);
 	  
       $.ajax({
 			type: 'POST',
