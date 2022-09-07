@@ -38,7 +38,7 @@ $(document).ready(function()
             row.find("#items_current_quantity").val(final_val);
             e.preventDefault();
            
-      $.ajax({
+    /*  $.ajax({
 			type: 'POST',
 			url: '<?php echo site_url("$controller_name/save_qty/item_id"); ?>',
             data: {'item_id':item_id,'receiving_quantity':receiving_quantity,'items_add_quantity':items_add_quantity,'items_less_quantity':items_less_quantity,'items_current_quantity':items_current_quantity},   
@@ -50,7 +50,7 @@ $(document).ready(function()
             }).fail((jqXHR, errorMsg) => {
                 alert(jqXHR.responseText, errorMsg);
         });
-    });  
+    });  */
 })();
  $("#submit_qty").click(function(e) {
 	 alert('Im');
