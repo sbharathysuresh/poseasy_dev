@@ -56,7 +56,7 @@ $(document).ready(function()
     });  
 //})();
  $('input[name="submit_qty"]').click(function(e) {
-	 alert(item_id);
+	// alert(item_id);
 	  
       $.ajax({
 			type: 'POST',
@@ -65,7 +65,7 @@ $(document).ready(function()
             datatype : 'json',
             
             }).done(function (msg) {
-                alert("Data Saved: " + msg);
+                alert("Stock Quantity has been Successfully Saved : " + msg);
 	      window.location.reload();
                 
             }).fail((jqXHR, errorMsg) => {
