@@ -22,8 +22,8 @@ $(document).ready(function()
     });
 
     //add value
-    (function() {
-    "use strict";
+  //  (function() {
+//    "use strict";
 
     $("table").on("change", "input","click", function(e) {
         
@@ -52,7 +52,7 @@ $(document).ready(function()
                 alert(jqXHR.responseText, errorMsg);
         });*/
     });  
-})();
+//})();
  $("#submit_qty").click(function(e) {
 	 alert(item_id);
 	  
