@@ -69,7 +69,7 @@ $(document).ready(function()
             }).fail((jqXHR, errorMsg) => {
                 alert(jqXHR.responseText, errorMsg);
         });
-       $('#register').ajax.reload();
+       //$('#register').ajax.reload();
   
  });	 
 });
