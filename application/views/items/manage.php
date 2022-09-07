@@ -76,7 +76,7 @@ $(document).ready(function()
             }).fail((jqXHR, errorMsg) => {
                 alert(jqXHR.responseText, errorMsg);
         });
-    });  
+  
  });	 
 });
 </script>
