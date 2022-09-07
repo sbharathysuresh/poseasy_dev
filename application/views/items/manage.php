@@ -4,6 +4,7 @@ $(document).ready(function()
 {
 	var receiving_quantity,items_add_quantity,items_less_quantity,item_id,final_val,i;
 	$('#table').hide();
+	$('#item_select').hide();
 	
     <?php $this->load->view('partial/bootstrap_tables_locale'); ?>
 
