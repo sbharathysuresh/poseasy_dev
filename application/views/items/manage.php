@@ -4,7 +4,7 @@ $(document).ready(function()
 {
     <?php $this->load->view('partial/bootstrap_tables_locale'); ?>
 
-  /*  table_support.init({
+    table_support.init({
       
         resource: '<?php echo site_url($controller_name);?>',
         headers: <?php echo $table_headers; ?>,
@@ -17,7 +17,7 @@ $(document).ready(function()
 				distanceFromCursor: { top:10, left:-210 }
 			})
         }
-    });*/
+    });
 
     //add value
     (function() {
