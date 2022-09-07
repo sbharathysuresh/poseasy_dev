@@ -69,7 +69,7 @@ $(document).ready(function()
             }).fail((jqXHR, errorMsg) => {
                 alert(jqXHR.responseText, errorMsg);
         });
-	 $('#register').DataTable().ajax.reload(null,false);
+	// $('#register').DataTable().ajax.reload(null,false);
   
  });	 
 });
