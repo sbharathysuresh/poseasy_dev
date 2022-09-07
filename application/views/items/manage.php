@@ -65,7 +65,7 @@ $(document).ready(function()
             datatype : 'json',
             
             }).done(function (msg) {
-                alert("Stock Quantity has been Successfully Saved : " + msg);
+                alert("Stock Quantity has been Successfully Saved " );
 	      window.location.reload();
                 
             }).fail((jqXHR, errorMsg) => {
