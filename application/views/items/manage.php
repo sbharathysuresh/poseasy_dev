@@ -34,7 +34,7 @@ $(document).ready(function()
              items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
              item_id = row.find("td:eq(0)").text();
              final_val = ((parseFloat(receiving_quantity) + parseFloat(items_add_quantity))-parseFloat(items_less_quantity));
-           // alert(final_val);            
+           alert(item_id);            
             var url='<?php echo site_url("$controller_name/save_qty/item_id"); ?>';
             row.find("#items_current_quantity").val(final_val);
             e.preventDefault();
