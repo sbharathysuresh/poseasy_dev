@@ -31,11 +31,38 @@ class Item extends CI_Model
 			$this->db->select('*');
 			$this->db->from('items');
 			$this->db->join('suppliers', 'suppliers.person_id = items.supplier_id');
+			$this->db->where('items.deleted', '0');
+			$this->db->order_by('item_id', 'desc');
 			$query = $this->db->get();
 			$item_results = $query->result();
 			return $item_results;
 		}
 
+		// update
+
+		
+
+		function updaterecords($item_id,$company_name,$category,$cost_price,$unit_price,$receiving_quantity,$branch,$location,$bin,$rack,$pack_type)
+	{	
+		$query="UPDATE `ospos_items` 
+		SET 
+		`company_name`='$company_name',
+		`category`='$category',
+		`cost_price`='$cost_price',
+		`unit_price`='$unit_price',
+		`receiving_quantity`='$receiving_quantity',
+		'tax_percents'='$tax_percents',
+		`branch`='$branch',
+		`location`='$location',
+		`bin`='$bin',
+		`rack`='$rack',
+		`pack_type`='$pack_type'
+			 WHERE item_id=$item_id";
+
+		$this->db->query($query);
+
+		
+	}
        
 		
 	/*
@@ -249,6 +276,7 @@ class Item extends CI_Model
 			return $items_current_quantity;
 		}
 
+		
 	/*
 	Returns all the items
 	*/
@@ -437,6 +465,7 @@ class Item extends CI_Model
 	/*
 	Deletes one item
 	*/
+
 	public function delete($item_id)
 	{
 		//Run these queries as a transaction, we want to make sure we do all or nothing
@@ -468,13 +497,13 @@ class Item extends CI_Model
 	/*
 	Deletes a list of items
 	*/
-	public function delete_list($item_ids)
+	public function delete_list($item_id)
 	{
 		//Run these queries as a transaction, we want to make sure we do all or nothing
 		$this->db->trans_start();
 
 		// set to 0 quantities
-		$this->Item_quantity->reset_quantity_list($item_ids);
+		$this->Item_quantity->reset_quantity_list($item_id);
 		$this->db->where_in('item_id', $item_ids);
 		$success = $this->db->update('items', array('deleted'=>1));
 

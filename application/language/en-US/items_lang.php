@@ -125,3 +125,4 @@ $lang["items_location"] = "Location";
 $lang["items_rack"] = "Rack";
 $lang["items_bin"] = "Bin";
 $lang["item_pack_type"] = "Pack Type";
+$lang["item_edit"] = "Edit";

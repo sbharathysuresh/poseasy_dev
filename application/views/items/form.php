@@ -39,7 +39,7 @@
 					<?php
 						if($this->Appconfig->get('category_dropdown'))
 						{
-							echo form_dropdown('category', $categories, $selected_category, array('class'=>'form-control'));
+							echo form_dropdown('category', $categories, $selected_category, array('class'=>'form-control','id'=>'category'));
 						}
 						else
 						{
