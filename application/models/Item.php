@@ -263,16 +263,13 @@ class Item extends CI_Model
 
 	//editable text
 	 public function save_qty_db($item_id,$receiving_quantity,$items_add_quantity,$items_less_quantity,$items_current_quantity){
-			//var_dump($data);
 			$data = array(
 				'receiving_quantity' => $items_current_quantity,
 				'add_quantity' => $items_add_quantity,
 				'less_quantity' => $items_less_quantity
 				);
-			//var_dump($item_id);
 			$this->db->where('item_id', $item_id);			
 			$result = $this->db->update('ospos_items', $data);
-		 var_dump($result);
 			return $items_current_quantity;
 		}
 
@@ -470,12 +467,11 @@ class Item extends CI_Model
 	{
 		//Run these queries as a transaction, we want to make sure we do all or nothing
 		$this->db->trans_start();
-
 		// set to 0 quantities
 		$this->Item_quantity->reset_quantity($item_id);
-		$this->db->where('item_id', $item_id);
+		$this->db->where_in('item_id', explode(",", $item_id));
 		$success = $this->db->update('items', array('deleted'=>1));
-		$success &= $this->Inventory->reset_quantity($item_id);
+		//$success &= $this->Inventory->reset_quantity($item_id);
 
 		$this->db->trans_complete();
 

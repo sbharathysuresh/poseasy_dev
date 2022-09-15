@@ -1435,16 +1435,24 @@ class Items extends Secure_Controller
 	// delete_items
 	public function check_item($item_id)
 	{
-		if($this->Item->delete($item_id))
+
+				
+		if(isset($item_id)) 
 		{
-			$message = $this->lang->line('items_successful_deleted') . ' ' . count($item_id) . ' ' . $this->lang->line('items_one_or_multiple');
-			echo json_encode(array('success' => TRUE, 'message' => $message));
-		}
+			$all_item_id = $item_id;
+			$extract_id = str_replace('-',',',$all_item_id); 
+			
+				if($this->Item->delete($extract_id))
+				{
+					$message = $this->lang->line('items_successful_deleted') . ' ' . ($extract_id) . ' ' . $this->lang->line('items_one_or_multiple');
+					echo json_encode(array('success' => TRUE, 'message' => $message));
+				}
 		else
 		{
 			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_cannot_be_deleted')));
 		}
-		
+	//}
+		}
 	}
 
 	/**

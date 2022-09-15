@@ -23,9 +23,9 @@ $(document).ready(function()
         }
     });
 
-   
+   // Editable table
  
-    $("table").on("change", "input","click", function(e) {
+   $(document).on('change', '#items_add_quantity,#items_less_quantity', function(){
             var row = $(this).closest("tr");
             console.log(row);
              receiving_quantity = parseFloat(row.find("#receiving_quantity").text());
@@ -36,9 +36,9 @@ $(document).ready(function()
             var url='<?php echo site_url("$controller_name/save_qty/item_id"); ?>';
             row.find("#items_current_quantity").val(final_val);
             e.preventDefault();
-    });  
+    });
 
- $('input[name="submit_qty"]').click(function(e) {
+    $(document).on('click',"#submit_qty",function(evt){
 	    alert('Do you want add the Stock Quantity');
       $.ajax({
 			type: 'POST',
@@ -68,7 +68,7 @@ $(document).ready(function()
             }    
         });     
 
-
+       
         $('.delete_all').on('click', function(e) {  
    
             var allVals = [];    
@@ -84,15 +84,14 @@ $(document).ready(function()
                 var check = confirm("Are you sure you want to delete this row?");    
                 if(check == true){    
 
-                    var join_selected_values = allVals.join(",");   
-         
+                    var join_selected_values = allVals.join("-");   
+         alert(join_selected_values);
           var item_id_del = join_selected_values;
           var url_item="<?php echo site_url("Items/check_item/"); ?>" + item_id_del;
-          alert (url_item); 
           $.ajax({  
                url: url_item,  
                type: 'POST',  
-
+               data: 'item_ids='+join_selected_values,
                success: function (data) {  
 
             $(".sub_chk:checked").each(function() {    
@@ -112,11 +111,33 @@ $(document).ready(function()
    }    
     });  
     }); 
+
+        // Update items
+        $('#update_data').hide();
+            $(document).on('click','.close',function(){
+            alert('Do you want close');
+            window.location.reload();
+    });
+     
+    $(document).on('click', '#update_data_new', function(){
+ 
+            var row = $(this).closest("tr");
+            item_id = row.find("td:eq(1)").text();
+            var url_item_update="<?php echo site_url("Items/edit/"); ?>" + item_id;
+                
+      
+      
+       $('#update_data').attr('data-href', url_item_update);
+       $('#update_data').click(); 
        
+    
+     
+    });
 
+   
 
-    // toolbar
-        var $register = $('#register');
+    // Toolbar
+        var $table12 = $('#table12');
             $(function () {
                 $('#toolbar').find('select').change(function () {
                 $table.bootstrapTable('refreshOptions', {
@@ -125,7 +146,7 @@ $(document).ready(function()
                 });
             })
 
-                var trBoldBlue = $("register");
+                var trBoldBlue = $("table12");
 
 
             $(trBoldBlue).on("click", "tr", function (){
@@ -149,11 +170,19 @@ $(document).ready(function()
             <button style="margin-bottom: 5px" id="delete_chk" class="btn btn-primary delete_all" data-url="/itemDelete">
                 <span class="glyphicon glyphicon-trash">&nbsp</span>Delete </button>
     </div>
-   
-<div id="table_holder1">
 
+    <button  
+                id='update_data' 
+                class='btn btn-info btn-sm pull-right modal-dlg'
+                data-btn-new='<?php echo $this->lang->line('item_edit'); ?>'
+                data-btn-submit='<?php echo $this->lang->line('common_submit') ?>'  
+                <span class="glyphicon glyphicon-tag">&nbsp;</span><?php echo $this->lang->line($controller_name. '_new'); ?>
+                </button>
+   
+<div id="datatable">
+   
     
-        <table class="headers1" id="table-striped" data-toggle="table"
+        <table class="headers1" id="table12" data-toggle="table"
 			 data-search="true"
 			 data-filter-control="true" 
 			 data-show-export="true"
@@ -184,7 +213,7 @@ $(document).ready(function()
                 <th style="width:15%;"><?php echo $this->lang->line('item_pack_type'); ?></th>
 				<th style="width:15%;"></th>
                 <th style="width:15%;"></th>
-                
+              
 			</tr>
 		</thead>
    <tbody id="headers1">
@@ -212,15 +241,13 @@ $(document).ready(function()
                 <td><?php echo $item->rack ;?></td>
                 <td><?php echo $item->pack_type ;?></td>
                 <td><?php  echo form_submit(array(
-				'name' => 'submit_qty','class' => 'modal-dlg', 'data-btn-submit',
+				'id' => 'submit_qty','class' => 'modal-dlg', 'data-btn-submit',
 				'value' => $this->lang->line('common_submit'),'class' => 'btn btn-primary btn-sm pull-right'    ));?></td>
                 
-                <td><button name='submit_edit' id='update_data' class='btn btn-info btn-sm pull-right modal-dlg' data-btn-new='<?php echo $this->lang->line('item_edit'); ?>'
-                        data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url("$controller_name/edit/".$item->item_id); ?>'
-                        title='<?php echo $this->lang->line($controller_name . '_update'); ?>'>
-                        <?php echo $this->lang->line($controller_name. '_update'); ?>
-                </button></td>
                 
+                <td><?php  echo form_submit(array('id'=>'update_data_new',
+				'name' => 'update_data_new','class' => 'modal-dlg', 'data-btn-submit',
+				'value' => $this->lang->line('item_edit'),'class' => 'btn btn-primary btn-sm pull-right'    ));?></td>
                 
             
             </tr> 
