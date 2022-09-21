@@ -422,31 +422,23 @@ function get_items_manage_table_headers()
 
 	$headers = array(
 		array('items.item_id' => $CI->lang->line('common_id')),
-		array('item_number' => $CI->lang->line('items_item_number')),
-		array('company_name' => $CI->lang->line('suppliers_company_name')),
+		//array('item_number' => $CI->lang->line('items_item_number')),
+		//array('company_name' => $CI->lang->line('suppliers_company_name')),
 		array('name' => $CI->lang->line('items_name')),
 		array('category' => $CI->lang->line('items_category')),
 		array('cost_price' => $CI->lang->line('items_cost_price')),
 		array('unit_price' => $CI->lang->line('items_unit_price')),
 		array('quantity' => $CI->lang->line('items_quantity')),
 		array('add_quantity' => $CI->lang->line('items_add_quantity')),
-		array('less_quantity' => $CI->lang->line('items_less_quantity')),
 		array('current_quantity' => $CI->lang->line('items_current_quantity')),
 		array('branch' => $CI->lang->line('items_branch')),
 		array('location' => $CI->lang->line('items_location')),
 		array('rack' => $CI->lang->line('items_rack')),
-		array('bin' => $CI->lang->line('items_bin'))
+		array('bin' => $CI->lang->line('items_bin')),
+		array('pack_type' => $CI->lang->line('items_pack_type'))
 	);
 
-	if($CI->config->item('use_destination_based_tax') == '1')
-	{
-		$headers[] = array('tax_percents' => $CI->lang->line('items_tax_category'), 'sortable' => FALSE);
-	}
-	else
-	{
-		$headers[] = array('tax_percents' => $CI->lang->line('items_tax_percents'), 'sortable' => FALSE);
-
-	}
+	
 
 	$headers[] = array('item_pic' => $CI->lang->line('items_image'), 'sortable' => FALSE);
 
@@ -532,14 +524,15 @@ function get_item_data_row($item)
 		'category' => $item->category,
 		'cost_price' => to_currency($item->cost_price),
 		'unit_price' => to_currency($item->unit_price),
-		'quantity' => to_quantity_decimals($item->quantity),
+		'quantity' => $item->receiving_quantity,
+		'add_quantity' => $item->add_quantity,
+		'current_quantity' => $item->current_quantity,
 		'branch' => $item->branch,
 		'location' => $item->location,
 		'rack' => $item->rack,
 		'bin' => $item->bin,
 		'pack_type' => $item->pack_type,
-		'tax_percents' => !$tax_percents ? '-' : $tax_percents,
-		'item_pic' => $image
+		'	item_pic' => $image
 		);
 
 	$icons = array(

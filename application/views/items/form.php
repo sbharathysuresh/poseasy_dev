@@ -3,8 +3,9 @@
 <ul id="error_message_box" class="error_message_box"></ul>
 
 <?php echo form_open('items/save/'.$item_info->item_id, array('id'=>'item_form', 'enctype'=>'multipart/form-data', 'class'=>'form-horizontal')); ?>
-	<fieldset id="item_basic_info">
-		<div class="form-group form-group-sm">
+<?php echo $item_info->item_id; ?>
+<fieldset id="item_basic_info">
+		<div class="form-group form-group-sm" style=display:none;>
 			<?php echo form_label($this->lang->line('items_item_number'), 'item_number', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-8'>
 				<div class="input-group">
@@ -56,7 +57,7 @@
 		</div>
 
 		
-		<div class="form-group form-group-sm">
+		<div class="form-group form-group-sm" >
 			<?php echo form_label($this->lang->line('items_stock_type'), 'stock_type', !empty($basic_version) ? array('class'=>'required control-label col-xs-3') : array('class'=>'control-label col-xs-3')); ?>
 			<div class="col-xs-8">
 				<label class="radio-inline">
@@ -200,7 +201,7 @@
 		if(!$use_destination_based_tax)
 		{
 		?>
-			<div class="form-group form-group-sm">
+			<div class="form-group form-group-sm" style=display:none;>
 				<?php echo form_label($this->lang->line('items_tax_1'), 'tax_percent_1', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-4'>
 					<?php echo form_input(array(
@@ -210,7 +211,7 @@
 							'value'=>isset($item_tax_info[0]['name']) ? $item_tax_info[0]['name'] : $this->config->item('default_tax_1_name'))
 							);?>
 				</div>
-				<div class="col-xs-4">
+				<div class="col-xs-4" style=display:none;>
 					<div class="input-group input-group-sm">
 						<?php echo form_input(array(
 								'name'=>'tax_percents[]',
@@ -223,7 +224,7 @@
 				</div>
 			</div>
 
-			<div class="form-group form-group-sm">
+			<div class="form-group form-group-sm" style=display:none;>
 				<?php echo form_label($this->lang->line('items_tax_2'), 'tax_percent_2', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-4'>
 					<?php echo form_input(array(
@@ -233,7 +234,7 @@
 							'value'=>isset($item_tax_info[1]['name']) ? $item_tax_info[1]['name'] : $this->config->item('default_tax_2_name'))
 							);?>
 				</div>
-				<div class="col-xs-4">
+				<div class="col-xs-4" style=display:none;>
 					<div class="input-group input-group-sm">
 						<?php echo form_input(array(
 								'name'=>'tax_percents[]',
@@ -250,7 +251,7 @@
 		?>
 
 		<?php if($use_destination_based_tax): ?>
-			<div class="form-group form-group-sm">
+			<div class="form-group form-group-sm" style=display:none;>
 				<?php echo form_label($this->lang->line('taxes_tax_category'), 'tax_category', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>
 					<div class="input-group input-group-sm">
@@ -268,7 +269,7 @@
 		<?php endif; ?>
 
 		<?php if($include_hsn): ?>
-			<div class="form-group form-group-sm">
+			<div class="form-group form-group-sm" style=display:none;>
 				<?php echo form_label($this->lang->line('items_hsn_code'), 'category', array('class'=>'control-label col-xs-3')); ?>
 				<div class='col-xs-8'>
 					<div class="input-group">
@@ -287,7 +288,7 @@
 		foreach($stock_locations as $key=>$location_detail)
 		{
 		?>
-			<div class="form-group form-group-sm">
+			<div class="form-group form-group-sm" style=display:none;>
 				<?php echo form_label($this->lang->line('items_quantity').' '.$location_detail['location_name'], 'quantity_' . $key, array('class'=>'required control-label col-xs-3')); ?>
 				<div class='col-xs-4'>
 					<?php echo form_input(array(
@@ -413,7 +414,7 @@
 		</div>
 
 		<div class="form-group form-group-sm">
-			<?php echo form_label($this->lang->line('item_pack_type'), 'pack_type', array('class'=>'control-label col-xs-3')); ?>
+			<?php echo form_label($this->lang->line('items_pack_type'), 'pack_type', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-8'>
 			<select name="pack_type" id="pack_type"  class='form-control'>
                 <option value="" >--Select Pack Type--</option >

@@ -1,51 +1,117 @@
 <?php $this->load->view('partial/header'); ?>
+
 <script type="text/javascript">
 $(document).ready(function()
 {
-	var receiving_quantity,items_add_quantity,items_less_quantity,item_id,final_val,i;
-	$('#table').hide();
-    $('#table_holder').hide();
-   // $('.fixed-table-toolbar').hide();
-	//$('#item_select').hide();
-	//$('#register tr > *:nth-child(1)').hide();
+    // var row = $(this).closest("tr");
+    // var col10=row.find("td:eq(10)").text();
+    // var col10=row.find("td:eq(10)").hide();
+    
+    $('#generate_barcodes').click(function()
+    {
+        window.open(
+            'index.php/items/generate_barcodes/'+table_support.selected_ids().join(':'),
+            '_blank' // <- This is what makes it open in a new window.
+        );
+    });
+	
+	// when any filter is clicked and the dropdown window is closed
+	$('#filters').on('hidden.bs.select', function(e)
+	{
+        table_support.refresh();
+    });
+
+	// load the preset daterange picker
+	<?php $this->load->view('partial/daterangepicker'); ?>
+    // set the beginning of time as starting date
+    $('#daterangepicker').data('daterangepicker').setStartDate("<?php echo date($this->config->item('dateformat'), mktime(0,0,0,01,01,2010));?>");
+	// update the hidden inputs with the selected dates before submitting the search data
+    var start_date = "<?php echo date('Y-m-d', mktime(0,0,0,01,01,2010));?>";
+	$("#daterangepicker").on('apply.daterangepicker', function(ev, picker) {
+        table_support.refresh();
+    });
+
+    $("#stock_location").change(function() {
+       table_support.refresh();
+    });
+
     <?php $this->load->view('partial/bootstrap_tables_locale'); ?>
 
     table_support.init({
-      
+        employee_id: <?php echo $this->Employee->get_logged_in_employee_info()->person_id; ?>,
         resource: '<?php echo site_url($controller_name);?>',
-        headers1: <?php echo $table_headers1; ?>,
-                  
+        headers: <?php echo $table_headers; ?>,
+        pageSize: <?php echo $this->config->item('lines_per_page'); ?>,
+        uniqueId: 'items.item_id',
+        queryParams: function() {
+            return $.extend(arguments[0], {
+                start_date: start_date,
+                end_date: end_date,
+                stock_location: $("#stock_location").val(),
+                filters: $("#filters").val() || [""]
+            });
+        },
         onLoadSuccess: function(response) {
             $('a.rollover').imgPreview({
 				imgCSS: { width: 200 },
 				distanceFromCursor: { top:10, left:-210 }
 			})
+            // Qty input field
+          //  $(this).find('th').eq(6).).hide();
+            $('table').find('tr').each(function(){ 
+            var row = $(this).closest("tr");
+            var col6=row.find("td:eq(8)").hide();
+            var col8=row.find("td:eq(7)").hide();
+			$(this).find('th').eq(-10).after('<th class=""  style=display:none;><div class="th-inner sortable both">&nbsp;Add Qty &nbsp;</div><div class="fht-cell"></div></th>');
+            $(this).find('th').eq(-1).after('<th style=display:none;>Less Quantity</th>');
+            $(this).find('th').eq(7).after('<th class=""  style=display:none;><div class="th-inner sortable both">&nbsp;Current Qty &nbsp;</div><div class="fht-cell"></div></th>');
+			$(this).find('td').eq(6).after('<td><input type="number" id="items_add_quantity" class="form-control input-sm" min="-100" max="1000" step="0.50" value="0.00"></td>');			
+			$(this).find('td').eq(-1).after('<td><button id="submit_qty" class="btn btn-primary btn-sm pull-right" >Submit</button></td>');
+			$(this).find('td').eq(-1).after('<td><input type="hidden" id="items_less_quantity" class="form-control input-sm" value="0"></td>');
+			$(this).find('td').eq(7).after('<td><input type="text" id="items_current_quantity" class="form-control input-sm" value="0" readonly></td>');
+                
+        });
         }
     });
 
-   // Editable table
- 
-   $(document).on('change', '#items_add_quantity,#items_less_quantity', function(){
-            var row = $(this).closest("tr");
-            console.log(row);
-             receiving_quantity = parseFloat(row.find("#receiving_quantity").text());
-             items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
-             items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
-             item_id = row.find("td:eq(1)").text();
-             final_val = ((parseFloat(receiving_quantity) + parseFloat(items_add_quantity))-parseFloat(items_less_quantity));           
-            var url='<?php echo site_url("$controller_name/save_qty/item_id"); ?>';
-            row.find("#items_current_quantity").val(final_val);
-            e.preventDefault();
-    });
 
+  
+    $(document).on("change", '#items_add_quantity,#items_less_quantity',  function(e){
+       var valid= RegExp(/^-?\d*(\.5\d{0,0})?(\.0\d{0,0})?$/);
+       var quantity_reg = e.target.value ;
+
+        
+        if(status = valid.test(e.target.value)){
+                var row = $(this).closest("tr");
+                var col2=row.find("td:eq(1)").text();
+                var col8=row.find("td:eq(6)").text();
+                
+                receiving_quantity = parseFloat(row.find("td:eq(6)").text().replace(/,/g,''));
+                items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
+            // items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
+                item_id = row.find("td:eq(1)").text();
+                final_val = parseFloat(receiving_quantity) + parseFloat( items_add_quantity ) ;    
+                var url="<?php echo site_url("Items/save_qty/"); ?>" + item_id ;
+                row.find("#items_current_quantity").val(final_val);
+                e.preventDefault();
+                console.log(row.closest('td'));
+        }
+        else{
+            alert('Invalid Number: ' + quantity_reg +   ' Pls enter .0 or .5');
+        }
+       
+    });
+    
     $(document).on('click',"#submit_qty",function(evt){
+        
 	    alert('Do you want add the Stock Quantity');
-      $.ajax({
-			type: 'POST',
-			url: '<?php echo site_url("$controller_name/save_qty/item_id"); ?>',
-            data: {'item_id':item_id,'receiving_quantity':receiving_quantity,'items_add_quantity':items_add_quantity,'items_less_quantity':items_less_quantity,'items_current_quantity':final_val},   
+        $.ajax({
+           type: 'POST',
+			url: "<?php echo site_url("Items/save_qty/"); ?>" ,
+            data: {'item_id':item_id,'receiving_quantity':receiving_quantity,'items_add_quantity':items_add_quantity,'items_current_quantity':final_val},   
             datatype : 'json',
             }).done(function (msg) {
+                
                 alert("Stock Quantity has been Successfully Saved " );
 	        window.location.reload();
                 
@@ -54,208 +120,48 @@ $(document).ready(function()
         });
        
   
- });	
-  
-        // Delete Items
-        $(document).ready(function () {  
-   
-        $('#master').on('click', function(e) {  
-            if($(this).is(':checked',true))    
-            {  
-            $(".sub_chk").prop('checked', true);    
-            } else {    
-            $(".sub_chk").prop('checked',false);    
-            }    
-        });     
-
-       
-        $('.delete_all').on('click', function(e) {  
-   
-            var allVals = [];    
-            $(".sub_chk:checked").each(function() {    
-                allVals.push($(this).attr('data-id'));  
-            });    
-
-            if(allVals.length <=0)    
-            {    
-                alert("Please select row.");    
-            }  else {    
-
-                var check = confirm("Are you sure you want to delete this row?");    
-                if(check == true){    
-
-                    var join_selected_values = allVals.join("-");   
-         alert(join_selected_values);
-          var item_id_del = join_selected_values;
-          var url_item="<?php echo site_url("Items/check_item/"); ?>" + item_id_del;
-          $.ajax({  
-               url: url_item,  
-               type: 'POST',  
-               data: 'item_ids='+join_selected_values,
-               success: function (data) {  
-
-            $(".sub_chk:checked").each(function() {    
-            $(this).parents("tr").remove();  
-            });  
-                    alert("Item Deleted successfully.");  
-               },  
-                    error: function (data) {  
-                    alert(data.responseText);  
-               }  
-           });  
-
-            $.each(allVals, function( index, value ) {  
-            $('table tr').filter("[data-row-item_id='" + value + "']").remove();  
-         });  
-       }    
-   }    
-    });  
-    }); 
-
-        // Update items
-        $('#update_data').hide();
-            $(document).on('click','.close',function(){
-            alert('Do you want close');
-            window.location.reload();
-    });
-     
-    $(document).on('click', '#update_data_new', function(){
- 
-            var row = $(this).closest("tr");
-            item_id = row.find("td:eq(1)").text();
-            var url_item_update="<?php echo site_url("Items/edit/"); ?>" + item_id;
-                
-      
-      
-       $('#update_data').attr('data-href', url_item_update);
-       $('#update_data').click(); 
-       
-    
-     
-    });
-
-   
-
-    // Toolbar
-        var $table12 = $('#table12');
-            $(function () {
-                $('#toolbar').find('select').change(function () {
-                $table.bootstrapTable('refreshOptions', {
-                        exportDataType: $(this).val()
-                    });
-                });
-            })
-
-                var trBoldBlue = $("table12");
-
-
-            $(trBoldBlue).on("click", "tr", function (){
-                    $(this).toggleClass("bold-blue");
-            });
+ });
 
 });
 </script>
 
-    <div id="title_bar" class="btn-toolbar print_hide">
-            <button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url("$controller_name/csv_import"); ?>'
-                    title='<?php echo $this->lang->line('items_import_items_csv'); ?>'>
-                <span class="glyphicon glyphicon-import">&nbsp;</span><?php echo $this->lang->line('common_import_csv'); ?>
-            </button>
+<div id="title_bar" class="btn-toolbar print_hide">
+    <button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url("$controller_name/csv_import"); ?>'
+            title='<?php echo $this->lang->line('items_import_items_csv'); ?>'>
+        <span class="glyphicon glyphicon-import">&nbsp;</span><?php echo $this->lang->line('common_import_csv'); ?>
+    </button>
 
-            <button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-new='<?php echo $this->lang->line('common_new') ?>' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url("$controller_name/view"); ?>'
-                    title='<?php echo $this->lang->line($controller_name . '_new'); ?>'>
-                <span class="glyphicon glyphicon-tag">&nbsp;</span><?php echo $this->lang->line($controller_name. '_new'); ?>
-            </button>
-           
-            <button style="margin-bottom: 5px" id="delete_chk" class="btn btn-primary delete_all" data-url="/itemDelete">
-                <span class="glyphicon glyphicon-trash">&nbsp</span>Delete </button>
+    <button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-new='<?php echo $this->lang->line('common_new') ?>' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url("$controller_name/view"); ?>'
+            title='<?php echo $this->lang->line($controller_name . '_new'); ?>'>
+        <span class="glyphicon glyphicon-tag">&nbsp;</span><?php echo $this->lang->line($controller_name. '_new'); ?>
+    </button>
+</div>
+
+<div id="toolbar">
+    <div class="pull-left form-inline" role="toolbar">
+        <button id="delete" class="btn btn-default btn-sm print_hide">
+            <span class="glyphicon glyphicon-trash">&nbsp;</span><?php echo $this->lang->line('common_delete'); ?>
+        </button>
+        <button id="bulk_edit" class="btn btn-default btn-sm modal-dlg print_hide", data-btn-submit='<?php echo $this->lang->line('common_submit') ?>', data-href='<?php echo site_url("$controller_name/bulk_edit"); ?>'
+				title='<?php echo $this->lang->line('items_edit_multiple_items'); ?>'>
+            <span class="glyphicon glyphicon-edit">&nbsp;</span><?php echo $this->lang->line("items_bulk_edit"); ?>
+        </button>
+        <button id="generate_barcodes" class="btn btn-default btn-sm print_hide" data-href='<?php echo site_url("$controller_name/generate_barcodes"); ?>' title='<?php echo $this->lang->line('items_generate_barcodes');?>'>
+            <span class="glyphicon glyphicon-barcode">&nbsp;</span><?php echo $this->lang->line('items_generate_barcodes'); ?>
+        </button>
+        <?php echo form_input(array('name'=>'daterangepicker', 'class'=>'form-control input-sm', 'id'=>'daterangepicker')); ?>
+        <?php echo form_multiselect('filters[]', $filters, '', array('id'=>'filters', 'class'=>'selectpicker show-menu-arrow', 'data-none-selected-text'=>$this->lang->line('common_none_selected_text'), 'data-selected-text-format'=>'count > 1', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit')); ?>
+        <?php
+        if (count($stock_locations) > 1)
+        {
+            echo form_dropdown('stock_location', $stock_locations, $stock_location, array('id'=>'stock_location', 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit'));
+        }
+        ?>
     </div>
+</div>
 
-    <button  
-                id='update_data' 
-                class='btn btn-info btn-sm pull-right modal-dlg'
-                data-btn-new='<?php echo $this->lang->line('item_edit'); ?>'
-                data-btn-submit='<?php echo $this->lang->line('common_submit') ?>'  
-                <span class="glyphicon glyphicon-tag">&nbsp;</span><?php echo $this->lang->line($controller_name. '_new'); ?>
-                </button>
-   
-<div id="datatable">
-   
-    
-        <table class="headers1" id="table12" data-toggle="table"
-			 data-search="true"
-			 data-filter-control="true" 
-			 data-show-export="true"
-             data-show-refresh="true"
-             data-show-toggle="true"
-             data-pagination="true"
-			 data-toolbar="#toolbar"
-             class="table-responsive">
-           
-		<thead>
-			<tr>
-                <th style="width:15%;"><?php echo form_checkbox(array('id'=>'master', 'data-id'=>'<?php echo $item->item_id ;?>' ));?></th>
-				<th style="width:5%;"><?php echo $this->lang->line('common_id'); ?></th>
-				<th style="width:15%;"><?php echo $this->lang->line('items_item_number'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('suppliers_company_name'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('items_name'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('items_category'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('items_cost_price'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('items_unit_price'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('items_quantity'); ?></th>
-                <th style="width:40%;"><?php echo $this->lang->line('items_add_quantity'); ?></th>
-                <th style="width:20%;"><?php echo $this->lang->line('items_less_quantity'); ?></th>
-                <th style="width:20%;"><?php echo $this->lang->line('items_current_quantity'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('items_branch'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('items_location'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('items_bin'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('items_rack'); ?></th>
-                <th style="width:15%;"><?php echo $this->lang->line('item_pack_type'); ?></th>
-				<th style="width:15%;"></th>
-                <th style="width:15%;"></th>
-              
-			</tr>
-		</thead>
-   <tbody id="headers1">
-               
-                <?php 
-             	foreach ($items_data as $item) { 
-			 $item_id = $item->item_id;
-                ?>
-                <tr>
-                <td><?php echo form_checkbox(array('class'=>'sub_chk', 'data-id'=>$item->item_id ));?></td>
-                <td id='item_id'><?php echo $item->item_id ; ?></td>
-                <td></td>
-                <td><?php echo $item->company_name ;?></td>
-                <td><?php echo $item->name ;?></td>
-                <td><?php echo $categories[$item->category] ;?></td>
-                <td><?php echo $item->cost_price ;?></td>
-                <td><?php echo $item->unit_price ;?></td>
-                <td id='receiving_quantity'><?php echo $item->receiving_quantity ;?></td>
-                <td><?php echo form_input(array('id'=>'items_add_quantity', 'class'=>'form-control input-sm', 'value'=> '0'));?></td>
-                <td><?php echo form_input(array('id'=>'items_less_quantity', 'class'=>'form-control input-sm', 'value'=> '0'));?></td>
-                <td><?php echo form_input(array('id'=>'items_current_quantity', 'class'=>'form-control input-sm', 'value'=> '0','readonly'=>true));?></td>
-                <td><?php echo $item->branch ;?></td>
-                <td><?php echo $item->location ;?></td>
-                <td><?php echo $item->bin ;?></td>
-                <td><?php echo $item->rack ;?></td>
-                <td><?php echo $item->pack_type ;?></td>
-                <td><?php  echo form_submit(array(
-				'id' => 'submit_qty','class' => 'modal-dlg', 'data-btn-submit',
-				'value' => $this->lang->line('common_submit'),'class' => 'btn btn-primary btn-sm pull-right'    ));?></td>
-                
-                
-                <td><?php  echo form_submit(array('id'=>'update_data_new',
-				'name' => 'update_data_new','class' => 'modal-dlg', 'data-btn-submit',
-				'value' => $this->lang->line('item_edit'),'class' => 'btn btn-primary btn-sm pull-right'    ));?></td>
-                
-            
-            </tr> 
-            <?php } ?>
-        </tbody>       
-    </table>
-    <div id="table_holder">
-         <table id="table"></table></div>
+<div id="table_holder">
+    <table id="table"></table>
 </div>
 
 <?php $this->load->view('partial/footer'); ?>
