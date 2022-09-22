@@ -547,10 +547,7 @@ class Items extends Secure_Controller
 			'location' => $this->input->post('location'),
 			'rack' => $this->input->post('rack'),
 			'bin' => $this->input->post('bin'),
-			'pack_type' => $this->input->post('pack_type'),
-			'add_quantity' => $this->input->post('add_quantity'),
-			'less_quantity' => $this->input->post('less_quantity'),
-			'current_quantity' => $this->input->post('current_quantity')
+			'pack_type' => $this->input->post('pack_type')
 		);
 
 		if($item_data['item_type'] == ITEM_TEMP)

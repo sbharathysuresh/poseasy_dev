@@ -77,7 +77,7 @@ $(document).ready(function()
 
   
     $(document).on("change", '#items_add_quantity,#items_less_quantity',  function(e){
-       var valid= RegExp(/^-?\d*(\.5\d{0,0})?(\.0\d{0,0})?$/);
+       var valid= RegExp(/^\d*(\.5\d{0,0})?(\.0\d{0,0})?$/);
        var quantity_reg = e.target.value ;
 
         

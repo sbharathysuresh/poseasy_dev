@@ -108,7 +108,6 @@ class Item extends CI_Model
 			$this->db->select('max(items.bin) AS bin');
 			$this->db->select('max(items.pack_type) AS pack_type');
 			$this->db->select('max(items.add_quantity) AS add_quantity');
-			$this->db->select('max(items.less_quantity) AS less_quantity');
 			$this->db->select('max(items.current_quantity) AS current_quantity');
 
 			$this->db->select('MAX(suppliers.person_id) AS person_id');
