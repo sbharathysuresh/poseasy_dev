@@ -447,7 +447,7 @@ function get_items_manage_table_headers()
 		$headers[] = array($definition_id => $definition_name, 'sortable' => FALSE);
 	}
 
-	$headers[] = array('inventory' => '', 'escape' => FALSE);
+	// $headers[] = array('inventory' => '', 'escape' => FALSE);
 	$headers[] = array('stock' => '', 'escape' => FALSE);
 
 	return transform_headers($headers);
@@ -532,13 +532,13 @@ function get_item_data_row($item)
 		'rack' => $item->rack,
 		'bin' => $item->bin,
 		'pack_type' => $item->pack_type,
-		'	item_pic' => $image
+		'item_pic' => $image
 		);
 
 	$icons = array(
-		'inventory' => anchor($controller_name."/inventory/$item->item_id", '<span class="glyphicon glyphicon-pushpin"></span>',
-			array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_count'))
-		),
+		// 'inventory' => anchor($controller_name."/inventory/$item->item_id", '<span class="glyphicon glyphicon-pushpin"></span>',
+		// 	array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_count'))
+		// ),
 		'stock' => anchor($controller_name."/count_details/$item->item_id", '<span class="glyphicon glyphicon-list-alt"></span>',
 			array('class' => 'modal-dlg', 'title' => $CI->lang->line($controller_name.'_details_count'))
 		),

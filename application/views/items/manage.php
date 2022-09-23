@@ -3,9 +3,6 @@
 <script type="text/javascript">
 $(document).ready(function()
 {
-    // var row = $(this).closest("tr");
-    // var col10=row.find("td:eq(10)").text();
-    // var col10=row.find("td:eq(10)").hide();
     
     $('#generate_barcodes').click(function()
     {
@@ -56,6 +53,7 @@ $(document).ready(function()
 				imgCSS: { width: 200 },
 				distanceFromCursor: { top:10, left:-210 }
 			})
+         
             // Qty input field
           //  $(this).find('th').eq(6).).hide();
             $('table').find('tr').each(function(){ 
@@ -65,10 +63,10 @@ $(document).ready(function()
 			$(this).find('th').eq(-10).after('<th class=""  style=display:none;><div class="th-inner sortable both">&nbsp;Add Qty &nbsp;</div><div class="fht-cell"></div></th>');
             $(this).find('th').eq(-1).after('<th style=display:none;>Less Quantity</th>');
             $(this).find('th').eq(7).after('<th class=""  style=display:none;><div class="th-inner sortable both">&nbsp;Current Qty &nbsp;</div><div class="fht-cell"></div></th>');
-			$(this).find('td').eq(6).after('<td><input type="number" id="items_add_quantity" class="form-control input-sm" min="-100" max="1000" step="0.50" value="0.00"></td>');			
+			$(this).find('td').eq(6).after('<td><input type="number" id="items_add_quantity" class="form-control input-sm" min="null" max="null" step="0.50" value="0.00"></td>');			
 			$(this).find('td').eq(-1).after('<td><button id="submit_qty" class="btn btn-primary btn-sm pull-right" >Submit</button></td>');
 			$(this).find('td').eq(-1).after('<td><input type="hidden" id="items_less_quantity" class="form-control input-sm" value="0"></td>');
-			$(this).find('td').eq(7).after('<td><input type="text" id="items_current_quantity" class="form-control input-sm" value="0" readonly></td>');
+			$(this).find('td').eq(7).after('<td style=width:10px><input type="number" id="items_current_quantity" class="form-control input-sm" value="0" readonly></td>');
                 
         });
         }
@@ -77,7 +75,8 @@ $(document).ready(function()
 
   
     $(document).on("change", '#items_add_quantity,#items_less_quantity',  function(e){
-       var valid= RegExp(/^\d*(\.5\d{0,0})?(\.0\d{0,0})?$/);
+       
+        var valid= RegExp(/^-?\d*(\.5\d{0,0})?(\.0\d{0,0})?$/);
        var quantity_reg = e.target.value ;
 
         
@@ -88,7 +87,7 @@ $(document).ready(function()
                 
                 receiving_quantity = parseFloat(row.find("td:eq(6)").text().replace(/,/g,''));
                 items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
-            // items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
+             // items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
                 item_id = row.find("td:eq(1)").text();
                 final_val = parseFloat(receiving_quantity) + parseFloat( items_add_quantity ) ;    
                 var url="<?php echo site_url("Items/save_qty/"); ?>" + item_id ;
@@ -97,14 +96,14 @@ $(document).ready(function()
                 console.log(row.closest('td'));
         }
         else{
-            alert('Invalid Number: ' + quantity_reg +   ' Pls enter .0 or .5');
+            alert('Please Enter the Correct Quantity .0 or .5');
         }
        
     });
     
     $(document).on('click',"#submit_qty",function(evt){
         
-	    alert('Do you want add the Stock Quantity');
+	    alert('Do you want update the Stock Quantity');
         $.ajax({
            type: 'POST',
 			url: "<?php echo site_url("Items/save_qty/"); ?>" ,
@@ -112,7 +111,7 @@ $(document).ready(function()
             datatype : 'json',
             }).done(function (msg) {
                 
-                alert("Stock Quantity has been Successfully Saved " );
+                alert("Stock Quantity has been Successfully Updated " );
 	        window.location.reload();
                 
             }).fail((jqXHR, errorMsg) => {
@@ -121,6 +120,27 @@ $(document).ready(function()
        
   
  });
+
+ $('table').hover(function() {
+    $("body").css("overflow","hidden");
+}, function() {
+     $("body").css("overflow","auto");
+});
+
+ var scrollCount = 1;
+window.addEventListener('mousewheel', function(e){
+
+  if(e.wheelDelta<0 && scrollCount<5){
+    scrollCount++;
+  }
+
+  else if(e.wheelDelta>0 && scrollCount>1){
+    scrollCount--;
+  }
+  document.querySelector('.number');
+});
+ 
+
 
 });
 </script>
@@ -142,13 +162,13 @@ $(document).ready(function()
         <button id="delete" class="btn btn-default btn-sm print_hide">
             <span class="glyphicon glyphicon-trash">&nbsp;</span><?php echo $this->lang->line('common_delete'); ?>
         </button>
-        <button id="bulk_edit" class="btn btn-default btn-sm modal-dlg print_hide", data-btn-submit='<?php echo $this->lang->line('common_submit') ?>', data-href='<?php echo site_url("$controller_name/bulk_edit"); ?>'
+        <!-- <button id="bulk_edit" class="btn btn-default btn-sm modal-dlg print_hide", data-btn-submit='<?php echo $this->lang->line('common_submit') ?>', data-href='<?php echo site_url("$controller_name/bulk_edit"); ?>'
 				title='<?php echo $this->lang->line('items_edit_multiple_items'); ?>'>
             <span class="glyphicon glyphicon-edit">&nbsp;</span><?php echo $this->lang->line("items_bulk_edit"); ?>
-        </button>
-        <button id="generate_barcodes" class="btn btn-default btn-sm print_hide" data-href='<?php echo site_url("$controller_name/generate_barcodes"); ?>' title='<?php echo $this->lang->line('items_generate_barcodes');?>'>
+        </button> -->
+        <!-- <button id="generate_barcodes" class="btn btn-default btn-sm print_hide" data-href='<?php echo site_url("$controller_name/generate_barcodes"); ?>' title='<?php echo $this->lang->line('items_generate_barcodes');?>'>
             <span class="glyphicon glyphicon-barcode">&nbsp;</span><?php echo $this->lang->line('items_generate_barcodes'); ?>
-        </button>
+        </button> -->
         <?php echo form_input(array('name'=>'daterangepicker', 'class'=>'form-control input-sm', 'id'=>'daterangepicker')); ?>
         <?php echo form_multiselect('filters[]', $filters, '', array('id'=>'filters', 'class'=>'selectpicker show-menu-arrow', 'data-none-selected-text'=>$this->lang->line('common_none_selected_text'), 'data-selected-text-format'=>'count > 1', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit')); ?>
         <?php

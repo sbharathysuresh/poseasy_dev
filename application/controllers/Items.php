@@ -172,7 +172,7 @@ class Items extends Secure_Controller
 
 	public function get_row($item_ids)
 	{
-		//var_dump('get_row');
+		
 		$item_infos = $this->Item->get_multiple_info(explode(':', $item_ids), $this->item_lib->get_item_location());
 
 		$result = [];
@@ -181,7 +181,7 @@ class Items extends Secure_Controller
 		{
 			$result[$item_info->item_id] = $this->xss_clean(get_item_data_row($item_info));
 		}
-		//var_dump($result);
+		
 		echo json_encode($result);
 	}
 
@@ -1004,7 +1004,7 @@ class Items extends Secure_Controller
 			}
 		}
 
-		if(!$is_update)
+		if($is_update)
 		{
 			$item_data['cost_price'] = empty($item_data['cost_price']) ? 0 : $item_data['cost_price'];	//Allow for zero wholesale price
 		}
