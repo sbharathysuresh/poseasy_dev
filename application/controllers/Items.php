@@ -28,8 +28,9 @@ class Items extends Secure_Controller
 			'search_custom' => $this->lang->line('items_search_attributes'),
 			'is_deleted' => $this->lang->line('items_is_deleted'),
 			'temporary' => $this->lang->line('items_temp'));
-
+			
 		$this->load->view('items/manage', $data);
+
 	}
 
 	/*
@@ -172,7 +173,7 @@ class Items extends Secure_Controller
 
 	public function get_row($item_ids)
 	{
-		
+		var_dump('get_row');
 		$item_infos = $this->Item->get_multiple_info(explode(':', $item_ids), $this->item_lib->get_item_location());
 
 		$result = [];
@@ -181,7 +182,7 @@ class Items extends Secure_Controller
 		{
 			$result[$item_info->item_id] = $this->xss_clean(get_item_data_row($item_info));
 		}
-		
+		//var_dump($result);
 		echo json_encode($result);
 	}
 
@@ -202,7 +203,7 @@ class Items extends Secure_Controller
 		{
 			$data = [];
 		}
-
+		
 		//allow_temp_items is set in the index function of items.php or sales.php
 		$data['allow_temp_item'] = $this->session->userdata('allow_temp_items');
 		$data['item_tax_info'] = $this->xss_clean($this->Item_taxes->get_info($item_id));
@@ -369,7 +370,7 @@ class Items extends Secure_Controller
 		{
 			$data['selected_low_sell_item'] = '';
 		}
-
+       
 		$this->load->view('items/form', $data);
 	}
 
@@ -855,63 +856,123 @@ class Items extends Secure_Controller
 	 * Imports items from CSV formatted file.
 	 */
 	public function import_csv_file()
-	{
+	{ 
 		if($_FILES['file_path']['error'] !== UPLOAD_ERR_OK)
-		{
+		{   
 			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_csv_import_failed')));
 		}
 		else
 		{
+		
 			if(file_exists($_FILES['file_path']['tmp_name']))
 			{
 				set_time_limit(240);
 
 				$failCodes = [];
 				$csv_rows = get_csv_file($_FILES['file_path']['tmp_name']);
+				
 				$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
+				
 				$allowed_stock_locations = $this->Stock_location->get_allowed_locations();
-				$attribute_definition_names	= $this->Attribute->get_definition_names();
+				
+				$attribute_definition_names	= $this->Attribute->get_definition_names();					
 
 				unset($attribute_definition_names[-1]);	//Removes the common_none_selected_text from the array
-
+				
 				foreach($attribute_definition_names as $definition_name)
 				{
 					$attribute_data[$definition_name] = $this->Attribute->get_definition_by_name($definition_name)[0];
+					
 
 					if($attribute_data[$definition_name]['definition_type'] === DROPDOWN)
 					{
 						$attribute_data[$definition_name]['dropdown_values'] = $this->Attribute->get_definition_values($attribute_data[$definition_name]['definition_id']);
 					}
 				}
-
+			
+				
 				$this->db->trans_begin();
-
+			
+				
 				foreach($csv_rows as $key => $row)
-				{
+				{ 
 					$is_failed_row = FALSE;
 					$item_id = $row['Id'];
 					$is_update = !empty($item_id);
+					//echo $item_id;
+
 					$item_data = array(
 						'item_id' => $item_id,
-						'name' => $row['Item Name'],
-						'description' => $row['Description'],
+						'name' => $row['Item Name'],						
 						'category' => $row['Category'],
+						'stock_type'=>$row['Stock type'],
+						'item_type'=>$row['Item type'],
 						'cost_price' => $row['Cost Price'],
 						'unit_price' => $row['Unit Price'],
+						'receiving_quantity'=>$row['Stock Qty'],
+						'branch'=>$row['Branch'],
+						'location'=>$row['Location'],
+						'rack'=>$row['Rack'],
+						'bin'=>$row['Bin'],
+						'pack_type'=>$row['Pack type'],
+						'description'=>$row['Description'],
 						'reorder_level' => $row['Reorder Level'],
 						'deleted' => FALSE,
 						'hsn_code' => $row['HSN'],
-						'pic_filename' => $row['Image']);
+						'pic_filename' => $row['Image'],
+						'low_sell_item_id' => -1									
+						
+					);					
+					
+					//SUPPLIER ID
+					// if(empty($row['Supplier ID']))
+					// { 
+					// 	$item_data['supplier_id'] = $this->Supplier->exists($row['Supplier ID']) ? $row['Supplier ID'] : NULL;
+					//      //echo $row['Supplier ID'];
+					// }
 
-					if(!empty($row['Supplier ID']))
-					{
-						$item_data['supplier_id'] = $this->Supplier->exists($row['Supplier ID']) ? $row['Supplier ID'] : NULL;
+					//STOCK TYPE
+					if(!empty($item_data['stock_type']))
+					{   
+						if($item_data['stock_type']=  strcasecmp($item_data['stock_type'],"Stock"))
+						{
+							$item_data['stock_type']=1;
+						}	
+						else
+						{
+							$item_data['stock_type']=0;
+						}			
+				
 					}
-
-					if($is_update)
+					else 
 					{
+						$item_data['stock_type']='NULL';
+					}
+					
+                    //ITEM TYPE
+					if(!empty($item_data['item_type']))
+					{   
+						if($item_data['item_type']=  strcasecmp($item_data['item_type'],"Standard"))
+						{
+							$item_data['item_type']=1;
+						}	
+						else
+						{
+							$item_data['item_type']=0;
+						}			
+				
+					}
+					else 
+					{
+						$item_data['item_type']='NULL';
+					}		
+			
+			      if($is_update)
+					{  
+
 						$item_data['allow_alt_description'] = empty($row['Allow Alt Description']) ? NULL : $row['Allow Alt Description'];
 						$item_data['is_serialized'] = empty($row['Item has Serial Number']) ? NULL : $row['Item has Serial Number'];
+						
 					}
 					else
 					{
@@ -923,21 +984,30 @@ class Items extends Secure_Controller
 					{
 						$item_data['item_number'] = $row['Barcode'];
 						$is_failed_row = $this->Item->item_number_exists($item_data['item_number']);
+						
+						
 					}
+					
 
 					if(!$is_failed_row)
 					{
-						$is_failed_row = $this->data_error_check($row, $item_data, $allowed_stock_locations, $attribute_definition_names, $attribute_data);
+						$is_failed_row = $this->data_error_check($row, $item_data, $allowed_stock_locations, $attribute_definition_names);
+						
 					}
 
 					//Remove FALSE, NULL, '' and empty strings but keep 0
 					$item_data = array_filter($item_data, 'strlen');
+					
 
 					if(!$is_failed_row && $this->Item->save($item_data, $item_id))
-					{
+					{   
+						
 						$this->save_tax_data($row, $item_data);
-						$this->save_inventory_quantities($row, $item_data, $allowed_stock_locations, $employee_id);
-						$is_failed_row = $this->save_attribute_data($row, $item_data, $attribute_data);
+						
+						
+						//$this->save_inventory_quantities($row, $item_data, $allowed_stock_locations, $employee_id);
+
+						//$is_failed_row = $this->save_attribute_data($row, $item_data,$attribute_data);
 
 						if($is_update)
 						{
@@ -950,11 +1020,12 @@ class Items extends Secure_Controller
 						$failCodes[] = $failed_row;
 						log_message('ERROR',"CSV Item import failed on line $failed_row. This item was not imported.");
 					}
-
+					
 					unset($csv_rows[$key]);
 				}
 
 				$csv_rows = NULL;
+				
 
 				if(count($failCodes) > 0)
 				{
@@ -964,8 +1035,9 @@ class Items extends Secure_Controller
 				}
 				else
 				{
+					
 					$this->db->trans_commit();
-
+					
 					echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('items_csv_import_success')));
 				}
 			}
@@ -984,52 +1056,71 @@ class Items extends Secure_Controller
 	 *
 	 * @return	bool	Returns FALSE if all data checks out and TRUE when there is an error in the data
 	 */
-	private function data_error_check($row, $item_data, $allowed_locations, $definition_names, $attribute_data)
+	private function data_error_check($row, $item_data, $allowed_locations, $definition_names )
 	{
 		$item_id = $row['Id'];
-		$is_update = $item_id ? TRUE : FALSE;
+		$is_update = $item_id ? TRUE : FALSE;	
 
 		//Check for empty required fields
 		$check_for_empty = array(
 			'name' => $item_data['name'],
 			'category' => $item_data['category'],
-			'unit_price' => $item_data['unit_price']);
-
+			'unit_price' => $item_data['unit_price'],			
+			'item_type'=>$item_data['item_type'],
+			'receiving_quantity'=>$item_data['receiving_quantity'],
+			'stock_type'=>$item_data['stock_type'],
+			'item_type'=>$item_data['item_type'],
+			'branch'=>$item_data['branch'],
+			'location'=>$item_data['location'],
+			'rack'=>$item_data['rack'],
+			'bin'=>$item_data['bin'],
+			'pack_type'=>$item_data['pack_type'],			
+			
+		);        
+            
 		foreach($check_for_empty as $key => $val)
 		{
 			if (empty($val) && !$is_update)
 			{
 				log_message('Error',"Empty required value in $key.");
 				return TRUE;
+				
 			}
-		}
-
+		}		
+				
 		if($is_update)
-		{
+		{ 
 			$item_data['cost_price'] = empty($item_data['cost_price']) ? 0 : $item_data['cost_price'];	//Allow for zero wholesale price
-		}
+			
+			}
 		else
 		{
 			if(!$this->Item->exists($item_id))
-			{
+			{ 
 				log_message('Error',"non-existent item_id: '$item_id' when either existing item_id or no item_id is required.");
 				return TRUE;
+						
 			}
+			
+		
 		}
+
 
 		//Build array of fields to check for numerics
 		$check_for_numeric_values = array(
 			'cost_price' => $item_data['cost_price'],
 			'unit_price' => $item_data['unit_price'],
 			'reorder_level' => $item_data['reorder_level'],
-			'supplier_id' => $item_data['supplier_id'],
+			
 			'Tax 1 Percent' => $row['Tax 1 Percent'],
-			'Tax 2 Percent' => $row['Tax 2 Percent']);
+			'Tax 2 Percent' => $row['Tax 2 Percent'],					
+			);		
+					
 
-		foreach($allowed_locations as $location_name)
-		{
-			$check_for_numeric_values[] = $row["location_$location_name"];
-		}
+		// foreach($allowed_locations as $location_name)
+		// {
+		// 	$check_for_numeric_values[] = $row["location_$location_name"];					
+		// }
 
 		//Check for non-numeric values which require numeric
 		foreach($check_for_numeric_values as $key => $value)
@@ -1061,13 +1152,13 @@ class Items extends Secure_Controller
 							return TRUE;
 						}
 						break;
-					case DECIMAL:
-						if(!is_numeric($attribute_value) && !empty($attribute_value))
-						{
-							log_message('Error',"'$attribute_value' is not an acceptable DECIMAL value");
-							return TRUE;
-						}
-						break;
+					// case DECIMAL:
+					// 	if(!is_numeric($attribute_value) && !empty($attribute_value))
+					// 	{
+					// 		log_message('Error',"'$attribute_value' is not an acceptable DECIMAL value");
+					// 		return TRUE;
+					// 	}
+					// 	break;
 					case DATE:
 						if(valid_date($attribute_value) === FALSE && !empty($attribute_value))
 						{
@@ -1167,26 +1258,26 @@ class Items extends Secure_Controller
 				'trans_comment' => $comment,
 				'trans_location' => $location_id);
 
-			if(!empty($row["location_$location_name"]) || $row["location_$location_name"] === '0')
-			{
-				$item_quantity_data['quantity'] = $row["location_$location_name"];
-				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
+			// if(!empty($row["location_$location_name"]) || $row["location_$location_name"] === '0')
+			// {
+			// 	$item_quantity_data['quantity'] = $row["location_$location_name"];
+			// 	$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
 
-				$csv_data['trans_inventory'] = $row["location_$location_name"];
-				$this->Inventory->insert($csv_data);
-			}
-			elseif($is_update)
-			{
-				return;
-			}
-			else
-			{
-				$item_quantity_data['quantity'] = 0;
-				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
+			// 	$csv_data['trans_inventory'] = $row["location_$location_name"];
+			// 	$this->Inventory->insert($csv_data);
+			// }
+			// elseif($is_update)
+			// {
+			// 	return;
+			// }
+			// else
+			// {
+			// 	$item_quantity_data['quantity'] = 0;
+			// 	$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
 
-				$csv_data['trans_inventory'] = 0;
-				$this->Inventory->insert($csv_data);
-			}
+			// 	$csv_data['trans_inventory'] = 0;
+			// 	$this->Inventory->insert($csv_data);
+			// }
 		}
 	}
 
@@ -1196,22 +1287,26 @@ class Items extends Secure_Controller
 	 * @param	array	line
 	 */
 	private function save_tax_data($row, $item_data)
-	{
+	{ 
 		$items_taxes_data = [];
 
 		if(is_numeric($row['Tax 1 Percent']) && $row['Tax 1 Name'] !== '')
 		{
 			$items_taxes_data[] = array('name' => $row['Tax 1 Name'], 'percent' => $row['Tax 1 Percent']);
+			//echo $row['Tax 1 Name'];
 		}
 
 		if(is_numeric($row['Tax 2 Percent']) && $row['Tax 2 Name'] !== '')
 		{
 			$items_taxes_data[] = array('name' => $row['Tax 2 Name'], 'percent' => $row['Tax 2 Percent']);
+			
 		}
 
 		if(isset($items_taxes_data))
-		{
+		{  
 			$this->Item_taxes->save($items_taxes_data, $item_data['item_id']);
+			
+			
 		}
 	}
 
