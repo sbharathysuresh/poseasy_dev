@@ -424,23 +424,23 @@ function get_items_manage_table_headers()
 		array('items.item_id' => $CI->lang->line('common_id')),
 		//array('item_number' => $CI->lang->line('items_item_number')),
 		//array('company_name' => $CI->lang->line('suppliers_company_name')),
-		array('name' => $CI->lang->line('items_name')),
+		array('name' => $CI->lang->line('items_name'),'sortable' => FALSE),
 		array('category' => $CI->lang->line('items_category')),
 		array('cost_price' => $CI->lang->line('items_cost_price')),
 		array('unit_price' => $CI->lang->line('items_unit_price')),
 		array('quantity' => $CI->lang->line('items_quantity')),
 		array('add_quantity' => $CI->lang->line('items_add_quantity')),
 		array('current_quantity' => $CI->lang->line('items_current_quantity')),
-		array('branch' => $CI->lang->line('items_branch')),
-		array('location' => $CI->lang->line('items_location')),
-		array('rack' => $CI->lang->line('items_rack')),
-		array('bin' => $CI->lang->line('items_bin')),
-		array('pack_type' => $CI->lang->line('items_pack_type'))
+		//array('branch' => $CI->lang->line('items_branch')),
+		//array('location' => $CI->lang->line('items_location')),
+		// array('rack' => $CI->lang->line('items_rack')),
+		//array('bin' => $CI->lang->line('items_bin')),
+		// array('pack_type' => $CI->lang->line('items_pack_type'))
 	);
 
 	
 
-	$headers[] = array('item_pic' => $CI->lang->line('items_image'), 'sortable' => FALSE);
+	//$headers[] = array('item_pic' => $CI->lang->line('items_image'), 'sortable' => TRUE);
 
 	foreach($definition_names as $definition_id => $definition_name)
 	{
@@ -547,7 +547,7 @@ function get_item_data_row($item)
 		)
 		
 	);
-
+	
 	return $columns + expand_attribute_values($definition_names, (array) $item) + $icons;
 
 }
