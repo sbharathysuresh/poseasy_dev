@@ -11,9 +11,15 @@
 		<div class="form-group form-group-sm">
 			<div class='col-xs-12'>
 				<div class="fileinput fileinput-new input-group" data-provides="fileinput">
-					<div class="form-control" data-trigger="fileinput"><i class="glyphicon glyphicon-file fileinput-exists"></i><span class="fileinput-filename"></span></div>
-					<span class="input-group-addon input-sm btn btn-default btn-file"><span class="fileinput-new"><?php echo $this->lang->line('common_import_select_file'); ?></span><span class="fileinput-exists"><?php echo $this->lang->line('common_import_change_file'); ?></span><input type="file" id="file_path" name="file_path" accept=".csv"></span>
-					<a href="#" class="input-group-addon input-sm btn btn-default fileinput-exists" data-dismiss="fileinput"><?php echo $this->lang->line('common_import_remove_file'); ?></a>
+					<div class="form-control" data-trigger="fileinput">
+						<i class="glyphicon glyphicon-file fileinput-exists"></i>
+						<span class="fileinput-filename"></span></div>
+					<span class="input-group-addon input-sm btn btn-default btn-file">
+						<span class="fileinput-new"><?php echo $this->lang->line('common_import_select_file'); ?></span>
+						<span class="fileinput-exists"><?php echo $this->lang->line('common_import_change_file'); ?></span>
+						<input type="file" id="file_path" name="file_path" accept=".csv"></span>
+					<a href="#" class="input-group-addon input-sm btn btn-default fileinput-exists" data-dismiss="fileinput">
+						<?php echo $this->lang->line('common_import_remove_file'); ?></a>
 				</div>
 			</div>
 		</div>
@@ -30,12 +36,14 @@ $(document).ready(function()
 				success:function(response)
 				{
 					dialog_support.hide();
-					table_support.handle_submit('<?php echo site_url('items'); ?>', response);
+					table_support.handle_submit('<?php echo site_url('items'); ?>', response)
+					
 				},
 				dataType: 'json'
 			});
+			
 		},
-
+		
 		errorLabelContainer: '#error_message_box',
  
 		rules: 
@@ -44,8 +52,9 @@ $(document).ready(function()
    		},
 
 		messages: 
-		{
+		{ 
    			file_path: "<?php echo $this->lang->line('common_import_full_path'); ?>"
+
 		}
 	}, form_support.error));
 });
