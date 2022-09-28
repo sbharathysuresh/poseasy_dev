@@ -309,17 +309,17 @@ class Item extends CI_Model
 	/*
 	Gets information about a particular item by item id or number
 	*/
-	public function get_info_by_id_or_number($item_id, $include_deleted = TRUE)
+	public function get_info_by_id_or_number($item_number , $include_deleted = TRUE)
 	{
 		$this->db->group_start();
-		$this->db->where('items.item_number', $item_id);
+		$this->db->where('items.item_number',$item_number );
 
 		// check if $item_id is a number and not a string starting with 0
 		// because cases like 00012345 will be seen as a number where it is a barcode
-		if(ctype_digit($item_id) && substr($item_id, 0, 1) != '0')
-		{
-			$this->db->or_where('items.item_id', intval($item_id));
-		}
+		// if(ctype_digit($item_id) && substr($item_id, 0, 1) != '0')
+		// {
+		// 	$this->db->or_where('items.item_id', intval($item_id));
+		// }
 
 		$this->db->group_end();
 
@@ -416,6 +416,29 @@ class Item extends CI_Model
 		}
 
 		$this->db->where('item_id', $item_id);
+
+		return $this->db->update('items', $item_data);
+	}
+	//CSV Save
+	public function csvsave(&$item_data, $item_number = FALSE)
+	{ 
+		if(!$item_number || !$this->exists($item_number, TRUE))
+		{
+			if($this->db->insert('items', $item_data))
+			{
+				$item_data['item_number'] = $this->db->insert_id();
+				
+				return TRUE;
+			}
+
+			return FALSE;
+		}
+		else
+		{
+			$item_data['item_number'] = $item_number;
+		}
+
+		$this->db->where('item_number', $item_number);
 
 		return $this->db->update('items', $item_data);
 	}

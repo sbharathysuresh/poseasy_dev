@@ -162,4 +162,5 @@ $autoload['model'] = array(
 	'Tax_category',
 	'Tax_code',
 	'Tax_jurisdiction'
+	
 );

@@ -897,12 +897,11 @@ class Items extends Secure_Controller
 				foreach($csv_rows as $key => $row)
 				{ 
 					$is_failed_row = FALSE;
-					$item_id = $row['Id'];
-					$is_update = !empty($item_id);
-					//echo $item_id;
-
+					$item_number= $row['Barcode'];
+					$is_update = !empty($item_number);
+					
 					$item_data = array(
-						'item_id' => $item_id,
+						
 						'name' => $row['Item Name'],						
 						'category' => $row['Category'],
 						'stock_type'=>$row['Stock type'],
@@ -919,17 +918,18 @@ class Items extends Secure_Controller
 						'reorder_level' => $row['Reorder Level'],
 						'deleted' => FALSE,
 						'hsn_code' => $row['HSN'],
-						'pic_filename' => $row['Image'],
-						'low_sell_item_id' => -1									
+						'pic_filename' => $row['Image']
+						
+															
 						
 					);					
 					
 					//SUPPLIER ID
-					// if(empty($row['Supplier ID']))
-					// { 
-					// 	$item_data['supplier_id'] = $this->Supplier->exists($row['Supplier ID']) ? $row['Supplier ID'] : NULL;
-					//      //echo $row['Supplier ID'];
-					// }
+					if(empty($row['Supplier ID']))
+					{ 
+						$item_data['supplier_id'] = $this->Supplier->exists($row['Supplier ID']) ? $row['Supplier ID'] : NULL;
+					     //echo $row['Supplier ID'];
+					}
 
 					//STOCK TYPE
 					if(!empty($item_data['stock_type']))
@@ -999,10 +999,10 @@ class Items extends Secure_Controller
 					$item_data = array_filter($item_data, 'strlen');
 					
 
-					if(!$is_failed_row && $this->Item->save($item_data, $item_id))
+					if(!$is_failed_row && $this->Item->csvsave($item_data, $item_number))
 					{   
 						
-						$this->save_tax_data($row, $item_data);
+						//$this->save_tax_data($row, $item_data);
 						
 						
 						//$this->save_inventory_quantities($row, $item_data, $allowed_stock_locations, $employee_id);
@@ -1011,7 +1011,7 @@ class Items extends Secure_Controller
 
 						if($is_update)
 						{
-							$item_data = array_merge($item_data, get_object_vars($this->Item->get_info_by_id_or_number($item_id)));
+							$item_data = array_merge($item_data, get_object_vars($this->Item->get_info_by_id_or_number($item_number )));
 						}
 					}
 					else
@@ -1058,23 +1058,16 @@ class Items extends Secure_Controller
 	 */
 	private function data_error_check($row, $item_data, $allowed_locations, $definition_names )
 	{
-		$item_id = $row['Id'];
-		$is_update = $item_id ? TRUE : FALSE;	
+		$item_name =$row['Item Name'];
+		$is_update = $item_name ? TRUE : FALSE;	
 
 		//Check for empty required fields
 		$check_for_empty = array(
-			'name' => $item_data['name'],
+			'name' => $item_data['name'],			
 			'category' => $item_data['category'],
 			'unit_price' => $item_data['unit_price'],			
-			'item_type'=>$item_data['item_type'],
 			'receiving_quantity'=>$item_data['receiving_quantity'],
-			'stock_type'=>$item_data['stock_type'],
-			'item_type'=>$item_data['item_type'],
-			'branch'=>$item_data['branch'],
-			'location'=>$item_data['location'],
-			'rack'=>$item_data['rack'],
-			'bin'=>$item_data['bin'],
-			'pack_type'=>$item_data['pack_type'],			
+			
 			
 		);        
             
@@ -1111,9 +1104,9 @@ class Items extends Secure_Controller
 			'cost_price' => $item_data['cost_price'],
 			'unit_price' => $item_data['unit_price'],
 			'reorder_level' => $item_data['reorder_level'],
-			
-			'Tax 1 Percent' => $row['Tax 1 Percent'],
-			'Tax 2 Percent' => $row['Tax 2 Percent'],					
+			'receiving_quantity'=>$item_data['receiving_quantity']
+			//'Tax 1 Percent' => $row['Tax 1 Percent'],
+			//'Tax 2 Percent' => $row['Tax 2 Percent'],					
 			);		
 					
 
@@ -1286,7 +1279,7 @@ class Items extends Secure_Controller
 	 *
 	 * @param	array	line
 	 */
-	private function save_tax_data($row, $item_data)
+	private function save_tax_data($row, $item_number)
 	{ 
 		$items_taxes_data = [];
 
