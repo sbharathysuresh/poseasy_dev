@@ -424,23 +424,23 @@ function get_items_manage_table_headers()
 		array('items.item_id' => $CI->lang->line('common_id')),
 		//array('item_number' => $CI->lang->line('items_item_number')),
 		//array('company_name' => $CI->lang->line('suppliers_company_name')),
-		array('name' => $CI->lang->line('items_name'),'sortable' => FALSE),
+		array('name' => $CI->lang->line('items_name')),
 		array('category' => $CI->lang->line('items_category')),
 		array('cost_price' => $CI->lang->line('items_cost_price')),
 		array('unit_price' => $CI->lang->line('items_unit_price')),
 		array('quantity' => $CI->lang->line('items_quantity')),
 		array('add_quantity' => $CI->lang->line('items_add_quantity')),
-		array('current_quantity' => $CI->lang->line('items_current_quantity')),
-		//array('branch' => $CI->lang->line('items_branch')),
-		//array('location' => $CI->lang->line('items_location')),
+		array('current_quantity' => $CI->lang->line('items_current_quantity'))
+		// array('branch' => $CI->lang->line('items_branch')),
+		// array('location' => $CI->lang->line('items_location')),
 		// array('rack' => $CI->lang->line('items_rack')),
-		//array('bin' => $CI->lang->line('items_bin')),
+		// array('bin' => $CI->lang->line('items_bin')),
 		// array('pack_type' => $CI->lang->line('items_pack_type'))
 	);
 
 	
 
-	//$headers[] = array('item_pic' => $CI->lang->line('items_image'), 'sortable' => TRUE);
+	// $headers[] = array('item_pic' => $CI->lang->line('items_image'), 'sortable' => FALSE);
 
 	foreach($definition_names as $definition_id => $definition_name)
 	{
@@ -527,11 +527,11 @@ function get_item_data_row($item)
 		'quantity' => $item->receiving_quantity,
 		'add_quantity' => $item->add_quantity,
 		'current_quantity' => $item->current_quantity,
-		'branch' => $item->branch,
-		'location' => $item->location,
-		'rack' => $item->rack,
-		'bin' => $item->bin,
-		'pack_type' => $item->pack_type,
+		// 'branch' => $item->branch,
+		// 'location' => $item->location,
+		// 'rack' => $item->rack,
+		// 'bin' => $item->bin,
+		// 'pack_type' => $item->pack_type,
 		'item_pic' => $image
 		);
 
@@ -547,7 +547,7 @@ function get_item_data_row($item)
 		)
 		
 	);
-	
+
 	return $columns + expand_attribute_values($definition_names, (array) $item) + $icons;
 
 }
@@ -748,6 +748,41 @@ function get_expense_category_data_row($expense_category)
 		'category_name' => $expense_category->category_name,
 		'category_description' => $expense_category->category_description,
 		'edit' => anchor($controller_name."/view/$expense_category->expense_category_id", '<span class="glyphicon glyphicon-edit"></span>',
+			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
+		)
+	);
+}
+// master tabular view
+
+function get_master_manage_table_headers()
+{
+	$CI =& get_instance();
+
+	$headers = array(
+		array('item_master_id' => $CI->lang->line('item_category_id')),
+		array('item_category_name' => $CI->lang->line('item_category_name')),
+		array('item_category_description' => $CI->lang->line('item_category_description')),
+		array('item_category_date' => $CI->lang->line('item_category_date')),
+	);
+
+	return transform_headers($headers);
+}
+
+/*
+Gets the html data row for the expenses category
+*/
+function get_master_data_row($master)
+{
+	$CI =& get_instance();
+
+	$controller_name = strtolower(get_class($CI));
+
+	return array (
+		'item_master_id' => $master->item_master_id ,
+		'item_category_name' => $master->item_master_name,
+		'item_category_description' => $master->item_master_disc,
+		'item_category_date' => $master->category_date,
+		'edit' => anchor($controller_name."/view/$master->item_master_id", '<span class="glyphicon glyphicon-edit"></span>',
 			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
 		)
 	);

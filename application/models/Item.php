@@ -905,14 +905,14 @@ class Item extends CI_Model
 	{
 		$suggestions = [];
 		$this->db->distinct();
-		$this->db->select('category');
-		$this->db->from('items');
-		$this->db->like('category', $search);
-		$this->db->where('deleted', 0);
-		$this->db->order_by('category', 'asc');
+		$this->db->select('item_master_name');
+		$this->db->from('master_category');
+		$this->db->like('item_master_name', $search);
+		// $this->db->where('deleted', 0);
+		$this->db->order_by('item_master_name', 'asc');
 		foreach($this->db->get()->result() as $row)
 		{
-			$suggestions[] = array('label' => $row->category);
+			$suggestions[] = array('label' => $row->item_master_name);
 		}
 
 		return $suggestions;
