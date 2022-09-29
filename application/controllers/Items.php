@@ -190,11 +190,11 @@ class Items extends Secure_Controller
 	public function save_qty() {
 		$item_id = $_POST['item_id'];
 		$receiving_quantity = $_POST['receiving_quantity'];
-		$items_add_quantity = $_POST['items_add_quantity'];
-		$items_less_quantity = $_POST['items_less_quantity'];
+		//$items_add_quantity = $_POST['items_add_quantity'];
+		//$items_less_quantity = $_POST['items_less_quantity'];
 		$items_current_quantity = $_POST['items_current_quantity'];
 						
-		$this->Item->save_qty_db($item_id,$receiving_quantity,$items_add_quantity,$items_less_quantity,$items_current_quantity);
+		$this->Item->save_qty_db($item_id,$receiving_quantity,$items_current_quantity);
 	}
 
 	public function view($item_id = NEW_ITEM)
@@ -897,11 +897,10 @@ class Items extends Secure_Controller
 				foreach($csv_rows as $key => $row)
 				{ 
 					$is_failed_row = FALSE;
-					$item_number= $row['Barcode'];
-					$is_update = !empty($item_number);
+					$item_name= $row['Item Name'];
+					$is_update = !empty($item_name);
 					
-					$item_data = array(
-						
+					$item_data = array('id'=>$row['Id'],												
 						'name' => $row['Item Name'],						
 						'category' => $row['Category'],
 						'stock_type'=>$row['Stock type'],
@@ -918,14 +917,13 @@ class Items extends Secure_Controller
 						'reorder_level' => $row['Reorder Level'],
 						'deleted' => FALSE,
 						'hsn_code' => $row['HSN'],
-						'pic_filename' => $row['Image']
-						
-															
+						'pic_filename' => $row['Image']	
+																	
 						
 					);					
 					
 					//SUPPLIER ID
-					if(empty($row['Supplier ID']))
+					if(!empty($row['Supplier ID']))
 					{ 
 						$item_data['supplier_id'] = $this->Supplier->exists($row['Supplier ID']) ? $row['Supplier ID'] : NULL;
 					     //echo $row['Supplier ID'];
@@ -999,19 +997,19 @@ class Items extends Secure_Controller
 					$item_data = array_filter($item_data, 'strlen');
 					
 
-					if(!$is_failed_row && $this->Item->csvsave($item_data, $item_number))
+					if(!$is_failed_row && $this->Item->csvsave($item_data, $item_name))
 					{   
 						
 						//$this->save_tax_data($row, $item_data);
 						
 						
-						//$this->save_inventory_quantities($row, $item_data, $allowed_stock_locations, $employee_id);
+						$this->save_inventory_quantities($row, $item_data, $allowed_stock_locations, $employee_id);
 
 						//$is_failed_row = $this->save_attribute_data($row, $item_data,$attribute_data);
 
 						if($is_update)
 						{
-							$item_data = array_merge($item_data, get_object_vars($this->Item->get_info_by_id_or_number($item_number )));
+							$item_data = array_merge($item_data, get_object_vars($this->Item->get_info_by_id_or_number($item_name )));
 						}
 					}
 					else
@@ -1068,7 +1066,6 @@ class Items extends Secure_Controller
 			'unit_price' => $item_data['unit_price'],			
 			'receiving_quantity'=>$item_data['receiving_quantity'],
 			
-			
 		);        
             
 		foreach($check_for_empty as $key => $val)
@@ -1105,8 +1102,7 @@ class Items extends Secure_Controller
 			'unit_price' => $item_data['unit_price'],
 			'reorder_level' => $item_data['reorder_level'],
 			'receiving_quantity'=>$item_data['receiving_quantity']
-			//'Tax 1 Percent' => $row['Tax 1 Percent'],
-			//'Tax 2 Percent' => $row['Tax 2 Percent'],					
+								
 			);		
 					
 
@@ -1145,13 +1141,13 @@ class Items extends Secure_Controller
 							return TRUE;
 						}
 						break;
-					// case DECIMAL:
-					// 	if(!is_numeric($attribute_value) && !empty($attribute_value))
-					// 	{
-					// 		log_message('Error',"'$attribute_value' is not an acceptable DECIMAL value");
-					// 		return TRUE;
-					// 	}
-					// 	break;
+					case DECIMAL:
+						if(!is_numeric($attribute_value) && !empty($attribute_value))
+						{
+							log_message('Error',"'$attribute_value' is not an acceptable DECIMAL value");
+							return TRUE;
+						}
+						break;
 					case DATE:
 						if(valid_date($attribute_value) === FALSE && !empty($attribute_value))
 						{
@@ -1237,7 +1233,7 @@ class Items extends Secure_Controller
 	{
 		//Quantities & Inventory Section
 		$comment = $this->lang->line('items_inventory_CSV_import_quantity');
-		$is_update = $row['Id'] ? TRUE : FALSE;
+		$is_update = $item_data['item_id'] ? TRUE : FALSE;
 
 		foreach($allowed_locations as $location_id => $location_name)
 		{
@@ -1251,26 +1247,26 @@ class Items extends Secure_Controller
 				'trans_comment' => $comment,
 				'trans_location' => $location_id);
 
-			// if(!empty($row["location_$location_name"]) || $row["location_$location_name"] === '0')
-			// {
-			// 	$item_quantity_data['quantity'] = $row["location_$location_name"];
-			// 	$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
+			if(!empty($row["location_$location_name"]) || $row["location_$location_name"] === '0')
+			{
+				$item_quantity_data['quantity'] = $row["location_$location_name"];
+				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
 
-			// 	$csv_data['trans_inventory'] = $row["location_$location_name"];
-			// 	$this->Inventory->insert($csv_data);
-			// }
-			// elseif($is_update)
-			// {
-			// 	return;
-			// }
-			// else
-			// {
-			// 	$item_quantity_data['quantity'] = 0;
-			// 	$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
+				$csv_data['trans_inventory'] = $row["location_$location_name"];
+				$this->Inventory->insert($csv_data);
+			}
+			elseif($is_update)
+			{
+				return;
+			}
+			else
+			{
+				$item_quantity_data['quantity'] = 0;
+				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
 
-			// 	$csv_data['trans_inventory'] = 0;
-			// 	$this->Inventory->insert($csv_data);
-			// }
+				$csv_data['trans_inventory'] = 0;
+				$this->Inventory->insert($csv_data);
+			}
 		}
 	}
 
