@@ -107,7 +107,8 @@ class Item extends CI_Model
 			$this->db->select('max(items.rack) AS rack');
 			$this->db->select('max(items.bin) AS bin');
 			$this->db->select('max(items.pack_type) AS pack_type');
-			$this->db->select('max(items.add_quantity) AS add_quantity');
+			$this->db->select('items.add_quantity');
+			//$this->db->select('max(items.add_quantity) AS add_quantity');
 			$this->db->select('max(items.current_quantity) AS current_quantity');
 
 			$this->db->select('MAX(suppliers.person_id) AS person_id');
@@ -234,11 +235,11 @@ class Item extends CI_Model
 
 
 	//editable text
-	public function save_qty_db($item_id,$receiving_quantity,$items_add_quantity,$items_less_quantity,$items_current_quantity){
+	public function save_qty_db($item_id,$receiving_quantity,$items_current_quantity){
 		$data = array(
 			'receiving_quantity' => $items_current_quantity,
-			'add_quantity' => $items_add_quantity,
-			'less_quantity' => $items_less_quantity
+			//'add_quantity' => $items_add_quantity,
+			//'less_quantity' => $items_less_quantity
 			);
 		$this->db->where('item_id', $item_id);			
 		$result = $this->db->update('ospos_items', $data);
@@ -309,17 +310,17 @@ class Item extends CI_Model
 	/*
 	Gets information about a particular item by item id or number
 	*/
-	public function get_info_by_id_or_number($item_number , $include_deleted = TRUE)
+	public function get_info_by_id_or_number($item_name , $include_deleted = TRUE)
 	{
 		$this->db->group_start();
-		$this->db->where('items.item_number',$item_number );
+		$this->db->where('items.name',$item_name );
 
-		// check if $item_id is a number and not a string starting with 0
-		// because cases like 00012345 will be seen as a number where it is a barcode
-		// if(ctype_digit($item_id) && substr($item_id, 0, 1) != '0')
-		// {
-		// 	$this->db->or_where('items.item_id', intval($item_id));
-		// }
+		//check if $item_name is a string and not a number 
+		
+		if( is_string($item_name) != '0')
+		{
+			$this->db->or_where('items.name', strval($item_name));
+		}
 
 		$this->db->group_end();
 
@@ -420,13 +421,13 @@ class Item extends CI_Model
 		return $this->db->update('items', $item_data);
 	}
 	//CSV Save
-	public function csvsave(&$item_data, $item_number = FALSE)
+	public function csvsave(&$item_data, $item_name = FALSE)
 	{ 
-		if(!$item_number || !$this->exists($item_number, TRUE))
+		if(!$item_name || !$this->exists($item_name, TRUE))
 		{
 			if($this->db->insert('items', $item_data))
 			{
-				$item_data['item_number'] = $this->db->insert_id();
+				$item_data['item_id'] = $this->db->insert_id();
 				
 				return TRUE;
 			}
@@ -435,10 +436,11 @@ class Item extends CI_Model
 		}
 		else
 		{
-			$item_data['item_number'] = $item_number;
+			$item_data['item_name'] = $item_name;
 		}
 
-		$this->db->where('item_number', $item_number);
+		
+		$this->db->where('item_name', $item_name);
 
 		return $this->db->update('items', $item_data);
 	}
