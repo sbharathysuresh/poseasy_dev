@@ -6,10 +6,10 @@ $lang["item_category_id"]= "ID";
 $lang["item_category_name"]= "Item Category Name";
 $lang["item_category_description"]= "Item Category Description";
 $lang["item_category_date"]= "Last Update Date";
-$lang["masters_successful_adding"]= "Item Category add successful";
+$lang["masters_successful_adding"]= "Item Category add successfully";
 $lang["item_updated_successful"]= "Item Category update successful";
 $lang["item_categories_error_adding_updating"]= "Error adding/updating Item Category";
-$lang["item_categories_successful_deleted"]= "Item Category delete successful";
+$lang["item_categories_successful_delete"]= "Item Category deleted successfully";
 $lang["item_categories_cannot_be_deleted"]= "Could not delete Category item(s)";
 $lang["masters_one_or_multiple"]="Category Item";
 $lang["masters_confirm_delete"] = "Are you sure you want to delete the selected items category?";
@@ -23,6 +23,7 @@ $lang["masters_error_adding_updating"]="Error adding/updating Items Category";
 $lang["masters_info"]="Category Items Info";
 $lang["masters_no_masters_to_display"]="No Category to display";
 $lang["masters_none_selected"]="You have not selected any Category Items";
+
 
 
 

@@ -107,7 +107,7 @@ $(document).ready(function()
     
     $(document).on('click',"#submit_qty",function(evt){
         
-	    alert('Do you want update the Stock Quantity');
+	    alert('Do you want update the stock quantity');
         $.ajax({
            type: 'POST',
 			url: "<?php echo site_url("Items/save_qty/"); ?>" ,
@@ -115,7 +115,7 @@ $(document).ready(function()
             datatype : 'json',
             }).done(function (msg) {
                 
-                alert("Stock Quantity has been Successfully Updated " );
+                alert("Stock quantity has been successfully updated " );
 	        window.location.reload();
                 
             }).fail((jqXHR, errorMsg) => {

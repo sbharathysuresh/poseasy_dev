@@ -900,7 +900,7 @@ class Items extends Secure_Controller
 					$item_name= $row['Item Name'];
 					$is_update = !empty($item_name);
 					
-					$item_data = array('id'=>$row['Id'],												
+					$item_data = array(												
 						'name' => $row['Item Name'],						
 						'category' => $row['Category'],
 						'stock_type'=>$row['Stock type'],
@@ -912,83 +912,14 @@ class Items extends Secure_Controller
 						'location'=>$row['Location'],
 						'rack'=>$row['Rack'],
 						'bin'=>$row['Bin'],
-						'pack_type'=>$row['Pack type'],
-						'description'=>$row['Description'],
+						'pack_type'=>$row['Pack type'],						
 						'reorder_level' => $row['Reorder Level'],
-						'deleted' => FALSE,
-						'hsn_code' => $row['HSN'],
-						'pic_filename' => $row['Image']	
-																	
-						
-					);					
-					
-					//SUPPLIER ID
-					if(!empty($row['Supplier ID']))
+						'deleted' => FALSE	
+
+					);						
+																						
+				    if(!$is_failed_row)
 					{ 
-						$item_data['supplier_id'] = $this->Supplier->exists($row['Supplier ID']) ? $row['Supplier ID'] : NULL;
-					     //echo $row['Supplier ID'];
-					}
-
-					//STOCK TYPE
-					if(!empty($item_data['stock_type']))
-					{   
-						if($item_data['stock_type']=  strcasecmp($item_data['stock_type'],"Stock"))
-						{
-							$item_data['stock_type']=1;
-						}	
-						else
-						{
-							$item_data['stock_type']=0;
-						}			
-				
-					}
-					else 
-					{
-						$item_data['stock_type']='NULL';
-					}
-					
-                    //ITEM TYPE
-					if(!empty($item_data['item_type']))
-					{   
-						if($item_data['item_type']=  strcasecmp($item_data['item_type'],"Standard"))
-						{
-							$item_data['item_type']=1;
-						}	
-						else
-						{
-							$item_data['item_type']=0;
-						}			
-				
-					}
-					else 
-					{
-						$item_data['item_type']='NULL';
-					}		
-			
-			      if($is_update)
-					{  
-
-						$item_data['allow_alt_description'] = empty($row['Allow Alt Description']) ? NULL : $row['Allow Alt Description'];
-						$item_data['is_serialized'] = empty($row['Item has Serial Number']) ? NULL : $row['Item has Serial Number'];
-						
-					}
-					else
-					{
-						$item_data['allow_alt_description'] = empty($row['Allow Alt Description'])? '0' : '1';
-						$item_data['is_serialized'] = empty($row['Item has Serial Number'])? '0' : '1';
-					}
-
-					if(!empty($row['Barcode']))
-					{
-						$item_data['item_number'] = $row['Barcode'];
-						$is_failed_row = $this->Item->item_number_exists($item_data['item_number']);
-						
-						
-					}
-					
-
-					if(!$is_failed_row)
-					{
 						$is_failed_row = $this->data_error_check($row, $item_data, $allowed_stock_locations, $attribute_definition_names);
 						
 					}
@@ -998,12 +929,9 @@ class Items extends Secure_Controller
 					
 
 					if(!$is_failed_row && $this->Item->csvsave($item_data, $item_name))
-					{   
-						
-						//$this->save_tax_data($row, $item_data);
-						
-						
-						$this->save_inventory_quantities($row, $item_data, $allowed_stock_locations, $employee_id);
+					{   						
+												
+						$this->csvsave_inventory_quantities($row, $item_data, $allowed_stock_locations, $employee_id);
 
 						//$is_failed_row = $this->save_attribute_data($row, $item_data,$attribute_data);
 
@@ -1055,7 +983,7 @@ class Items extends Secure_Controller
 	 * @return	bool	Returns FALSE if all data checks out and TRUE when there is an error in the data
 	 */
 	private function data_error_check($row, $item_data, $allowed_locations, $definition_names )
-	{
+	{   
 		$item_name =$row['Item Name'];
 		$is_update = $item_name ? TRUE : FALSE;	
 
@@ -1063,11 +991,8 @@ class Items extends Secure_Controller
 		$check_for_empty = array(
 			'name' => $item_data['name'],			
 			'category' => $item_data['category'],
-			'unit_price' => $item_data['unit_price'],			
-			'receiving_quantity'=>$item_data['receiving_quantity'],
-			
-		);        
-            
+						
+		);              
 		foreach($check_for_empty as $key => $val)
 		{
 			if (empty($val) && !$is_update)
@@ -1092,20 +1017,15 @@ class Items extends Secure_Controller
 						
 			}
 			
-		
 		}
-
-
 		//Build array of fields to check for numerics
 		$check_for_numeric_values = array(
 			'cost_price' => $item_data['cost_price'],
 			'unit_price' => $item_data['unit_price'],
 			'reorder_level' => $item_data['reorder_level'],
-			'receiving_quantity'=>$item_data['receiving_quantity']
-								
-			);		
-					
-
+			'receiving_quantity'=>$item_data['receiving_quantity']								
+			);
+			
 		// foreach($allowed_locations as $location_name)
 		// {
 		// 	$check_for_numeric_values[] = $row["location_$location_name"];					
@@ -1267,6 +1187,46 @@ class Items extends Secure_Controller
 				$csv_data['trans_inventory'] = 0;
 				$this->Inventory->insert($csv_data);
 			}
+		}
+	}
+	private function csvsave_inventory_quantities($row, $item_data, $allowed_locations, $employee_id)
+	{
+		//Quantities & Inventory Section
+		$comment = $this->lang->line('items_inventory_CSV_import_quantity');
+		$is_update = $item_data['item_id'] ? TRUE : FALSE;
+
+		foreach($allowed_locations as $location_id => $location_name)
+		{
+			$item_quantity_data = array(
+				'item_id' => $item_data['item_id'],
+				'location_id' => $location_id);
+
+			$csv_data = array(
+				'trans_items' => $item_data['item_id'],
+				'trans_user' => $employee_id,
+				'trans_comment' => $comment,
+				'trans_location' => $location_id);
+
+			// if(empty($row["location_$location_name"]) || $row["location_$location_name"] === '0')
+			// {
+			// 	$item_quantity_data['quantity'] = $row["location_$location_name"];
+			// 	$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
+
+			// 	$csv_data['trans_inventory'] = $row["location_$location_name"];
+			// 	$this->Inventory->insert($csv_data);
+			// }
+			// elseif($is_update)
+			// {
+			// 	return;
+			// }
+			// else
+			// {
+				$item_quantity_data['quantity'] = 0;
+				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
+
+				$csv_data['trans_inventory'] = 0;
+				$this->Inventory->insert($csv_data);
+			// }
 		}
 	}
 

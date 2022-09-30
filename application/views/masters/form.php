@@ -46,6 +46,7 @@ $(document).ready(function()
 				error: function(data) {
 					dialog_support.hide();
 					table_support.refresh();
+					table_support.handle_submit("<?php echo site_url($controller_name); ?>", "Data saved Successfully");
 				},
 				dataType: 'json'
 			});

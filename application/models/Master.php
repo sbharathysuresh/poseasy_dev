@@ -1,13 +1,13 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- * Expense_category class
+ * Item_category class
  */
 
 class Master extends CI_Model
 {
 	/*
-	Determines if a given Expense_id is an Expense category
+	Determines if a given item_category_id is an Item_category
 	*/
 	public function exists($item_master_id )
 	{
@@ -58,7 +58,7 @@ class Master extends CI_Model
 	}
 
 	/*
-	Returns all the expense_categories
+	Returns all the item_categories
 	*/
 	public function get_all($rows = 0, $limit_from = 0, $no_deleted = FALSE)
 	{
@@ -79,7 +79,7 @@ class Master extends CI_Model
 	}
 
 	/*
-	Gets information about multiple 	item_master_id 
+	Gets information about multiple item_master_id 
 	*/
 	public function get_multiple_info($item_master_id)
 	{
@@ -91,7 +91,7 @@ class Master extends CI_Model
 	}
 
 	/*
-	Inserts or updates an expense_category
+	Inserts or updates an item_category
 	*/
 	public function save(&$master_category_data, $item_master_id  = FALSE)
 	{
@@ -113,7 +113,7 @@ class Master extends CI_Model
 	}
 
 	/*
-	Deletes a list of expense_category
+	Deletes a list of item_category
 	*/
 	public function delete_list($item_master_id)
 	{
@@ -131,7 +131,7 @@ class Master extends CI_Model
 	}
 
 	/*
-	Perform a search on expense_category
+	Perform a search on item_category
 	*/
 	public function search($search, $rows = 0, $limit_from = 0, $sort = 'item_master_name', $order='asc', $count_only = FALSE)
 	{

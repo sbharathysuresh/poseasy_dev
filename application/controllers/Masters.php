@@ -17,7 +17,7 @@ class Masters extends Secure_Controller
 	}
 
 	/*
-	Returns expense_category_manage table data rows. This will be called with AJAX.
+	Returns Item_category_manage table data rows. This will be called with AJAX.
 	*/
 	public function search()
 	{
@@ -37,20 +37,20 @@ class Masters extends Secure_Controller
 
 		echo json_encode(array('total' => $total_rows, 'rows' => $data_rows));
 	}
-
+   //Get row
 	public function get_row($row_id)
 	{
 		$data_row = $this->xss_clean(get_master_data_row($this->Master->get_info($row_id)));
 		echo json_encode($data_row);
 	}
-
+     //View new form
 	public function view($item_master_id = -1)
 	{
 		$data['Master_category_info'] = $this->Master->get_info($item_master_id);
 
 		$this->load->view("masters/form", $data);
 	}
-
+	//Save new form
 	public function save($item_master_id = -1)
 	{
 		
@@ -63,29 +63,31 @@ class Masters extends Secure_Controller
 		{
 			$master_category_data = $this->xss_clean($master_category_data);
 
-			// New expense_category_id
+			// New master_category_id
 			if($item_master_id == -1)
 			{
 				echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('masters_successful_adding'), 'id' => $master_category_data['item_master_id']));	
 			}
-			else // Existing Expense Category
+			// Existing master Category
+			else 
 			{
 				echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('item_updated_successful'), 'id' => $item_master_id));
 			}
 		}
-		else//failure
+		//failure
+		else
 		{
 			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('item_categories_error_adding_updating') . ' ' . $master_category_data['item_master_name'], 'id' => -1));
 		}
 	}
-
+    //Delete data from formtable
 	public function delete()
 	{
 		$master_category_to_delete = $this->input->post('ids');
 
 		if($this->Master->delete_list($master_category_to_delete))
 		{
-			echo json_encode(array('success' => TRUE, 'message' => $this->lang->line('item_categories_successful_deleted') . ' ' . count($master_category_to_delete) . ' ' . $this->lang->line('item_categories_one_or_multiple')));
+			echo json_encode(array('success' => TRUE, 'message' => count($master_category_to_delete) . ' ' . $this->lang->line('item_categories_successful_delete') ));
 		}
 		else
 		{

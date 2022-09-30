@@ -423,7 +423,9 @@ class Item extends CI_Model
 	//CSV Save
 	public function csvsave(&$item_data, $item_name = FALSE)
 	{ 
-		if(!$item_name || !$this->exists($item_name, TRUE))
+		
+		
+		if(!$item_name || !$this->exists($item_name, FALSE))
 		{
 			if($this->db->insert('items', $item_data))
 			{
@@ -439,7 +441,7 @@ class Item extends CI_Model
 			$item_data['item_name'] = $item_name;
 		}
 
-		
+	
 		$this->db->where('item_name', $item_name);
 
 		return $this->db->update('items', $item_data);
