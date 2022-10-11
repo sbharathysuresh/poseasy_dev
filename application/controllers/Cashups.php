@@ -155,7 +155,7 @@ class Cashups extends Secure_Controller
 	{
 		$cash_ups_info = $this->Cashup->get_info($row_id);
 		$data_row = $this->xss_clean(get_cash_up_data_row($cash_ups_info));
-
+		var_dump($data_row);
 		echo json_encode($data_row);
 	}
 

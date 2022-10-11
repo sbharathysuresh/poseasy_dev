@@ -57,3 +57,4 @@ $lang["customers_opening_balance"]= "Opening Balance";
 $lang["customers_tax_bill"]="Tax Bill";
 $lang["customers_gbill_sbill"]="G.Bill /S.Bill";
 $lang['customers_payment_modes']="Payment Modes";
+$lang['common_category']='Category';

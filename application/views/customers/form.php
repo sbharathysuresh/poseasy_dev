@@ -93,6 +93,13 @@
 				</div>
 
 				<div class="form-group form-group-sm">
+			<?php echo form_label($this->lang->line('common_category'), 'customer_category_name', array('class'=>'control-label col-xs-3')); ?>
+			<div class='col-xs-6'>
+				<?php echo form_dropdown('customer_category_name', $customer_category, $person_info->customer_category_name, array('class'=>'form-control', 'id'=>'category')); ?>
+			</div>
+		</div>
+
+				<div class="form-group form-group-sm">
 					<?php echo form_label($this->lang->line('customers_account_number'), 'account_number', array('class' => 'control-label col-xs-3')); ?>
 					<div class='col-xs-4'>
 						<?php echo form_input(array(

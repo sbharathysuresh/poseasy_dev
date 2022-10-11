@@ -225,6 +225,7 @@ function get_customer_manage_table_headers()
 		array('people.person_id' => $CI->lang->line('common_id')),
 		array('last_name' => $CI->lang->line('common_last_name')),
 		array('first_name' => $CI->lang->line('common_first_name')),
+		array('customer_category_name'=>$CI->lang->line('common_category')),
 		array('email' => $CI->lang->line('common_email')),
 		array('phone_number' => $CI->lang->line('common_phone_number')),
 		array('total' => $CI->lang->line('common_total_spent'), 'sortable' => FALSE)
@@ -301,6 +302,7 @@ function get_customer_data_row($person, $stats)
 		'people.person_id' => $person->person_id,
 		'last_name' => $person->last_name,
 		'first_name' => $person->first_name,
+		'customer_category_name' => $person->customer_category_name,
 		'email' => empty($person->email) ? '' : mailto($person->email, $person->email),
 		'phone_number' => $person->phone_number,
 		'total' => to_currency($stats->total),
@@ -448,7 +450,7 @@ function get_items_manage_table_headers()
 	}
 
 	// $headers[] = array('inventory' => '', 'escape' => FALSE);
-	$headers[] = array('stock' => '', 'escape' => FALSE);
+	// $headers[] = array('stock' => '', 'escape' => FALSE);
 
 	return transform_headers($headers);
 }
@@ -539,9 +541,9 @@ function get_item_data_row($item)
 		// 'inventory' => anchor($controller_name."/inventory/$item->item_id", '<span class="glyphicon glyphicon-pushpin"></span>',
 		// 	array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_count'))
 		// ),
-		'stock' => anchor($controller_name."/count_details/$item->item_id", '<span class="glyphicon glyphicon-list-alt"></span>',
-			array('class' => 'modal-dlg', 'title' => $CI->lang->line($controller_name.'_details_count'))
-		),
+		// 'stock' => anchor($controller_name."/count_details/$item->item_id", '<span class="glyphicon glyphicon-list-alt"></span>',
+		// 	array('class' => 'modal-dlg', 'title' => $CI->lang->line($controller_name.'_details_count'))
+		// ),
 		'edit' => anchor($controller_name."/view/$item->item_id", '<span class="glyphicon glyphicon-edit"></span>',
 			array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
 		)
@@ -769,7 +771,7 @@ function get_master_manage_table_headers()
 }
 
 /*
-Gets the html data row for the expenses category
+Gets the html data row for the master category
 */
 function get_master_data_row($master)
 {
@@ -783,6 +785,49 @@ function get_master_data_row($master)
 		'item_category_description' => $master->item_master_disc,
 		'item_category_date' => $master->category_date,
 		'edit' => anchor($controller_name."/view/$master->item_master_id", '<span class="glyphicon glyphicon-edit"></span>',
+			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
+		)
+	);
+}
+
+
+// customer category tabular view
+
+function get_customer_category_manage_table_headers()
+{
+	$CI =& get_instance();
+
+	$headers = array(
+		array('customer_category_id' => $CI->lang->line('customer_category_id')),
+		array('customer_category_name' => $CI->lang->line('customer_category_name')),
+		array('customer_category_disc' => $CI->lang->line('customer_category_disc')),
+		array('customer_category_price' => $CI->lang->line('customer_category_price')),
+		array('customer_category_date' => $CI->lang->line('customer_category_date')),
+		array('customer_category_update_date' => $CI->lang->line('customer_category_update_date')),
+
+	);
+
+	return transform_headers($headers);
+}
+
+/*
+Gets the html data row for the customer category
+*/
+function get_customer_category_data_row($customer_category)
+{
+	$CI =& get_instance();
+
+	$controller_name = strtolower(get_class($CI));
+
+	return array (
+		'customer_category_id' => $customer_category->customer_category_id,
+		'customer_category_name' => $customer_category->customer_category_name,
+		'customer_category_disc' => $customer_category->customer_category_disc,
+		'customer_category_price' => $customer_category->customer_category_price,
+		'customer_category_date' => $customer_category->customer_category_date,
+		'customer_category_update_date'=> $customer_category->customer_category_update_date,
+
+		'edit' => anchor($controller_name."/view/$customer_category->customer_category_id", '<span class="glyphicon glyphicon-edit"></span>',
 			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
 		)
 	);
@@ -831,7 +876,7 @@ function get_expenses_data_row($expense)
 		'payment_type' => $expense->payment_type,
 		'category_name' => $expense->category_name,
 		'description' => $expense->description,
-		'created_by' => $expense->first_name.' '. $expense->last_name,
+		'created_by' => $expense->first_name .' '. $expense->last_name,
 		'edit' => anchor($controller_name."/view/$expense->expense_id", '<span class="glyphicon glyphicon-edit"></span>',
 			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
 		)

@@ -219,6 +219,12 @@ class Customers extends Persons
 				}
 			}
 		}
+		$customers_category = array();
+		foreach($this->Customers_category->get_all(0, 0, TRUE)->result_array() as $row)
+		{
+			$customer_category[$row['customer_category_name']] = $row['customer_category_name'];
+		}
+		$data['customer_category'] = $customer_category;
 
 		$this->load->view("customers/form", $data);
 	}
@@ -261,6 +267,7 @@ class Customers extends Persons
 			'discount' => $this->input->post('discount') == '' ? 0.00 : $this->input->post('discount'),
 			'discount_type' => $this->input->post('discount_type') == NULL ? PERCENT : $this->input->post('discount_type'),
 			'package_id' => $this->input->post('package_id') == '' ? NULL : $this->input->post('package_id'),
+			'customer_category_name'=>  $this->input->post('customer_category_name') ,
 			'taxable' => $this->input->post('taxable') != NULL,
 			'date' => $date_formatter->format('Y-m-d H:i:s'),
 			'employee_id' => $this->input->post('employee_id'),
