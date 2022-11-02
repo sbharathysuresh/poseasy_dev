@@ -85,6 +85,7 @@ $lang["items_receiving_quantity"] = "Receiving Quantity";
 $lang["items_add_quantity"] = "Add Qty";
 $lang["items_less_quantity"] = "Less Qty";
 $lang["items_current_quantity"] = "Current Qty";
+$lang["items_supplier_name"] = "Supplier name";
 $lang["items_remove_image"] = "Remove Image";
 $lang["items_reorder_level"] = "Reorder Level";
 $lang["items_reorder_level_number"] = "Reorder Level must be a number.";
@@ -126,3 +127,6 @@ $lang["items_rack"] = "Rack";
 $lang["items_bin"] = "Bin";
 $lang["items_pack_type"] = "Pack Type";
 $lang["item_edit"] = "Edit";
+$lang["item_name_message"]="Item is already in the table...Please Enter new item ";
+$lang["serial_number"]="S.no";
+

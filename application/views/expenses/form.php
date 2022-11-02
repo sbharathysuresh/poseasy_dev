@@ -34,10 +34,11 @@
 						'value'=>$this->lang->line('expenses_start_typing_supplier_name'))
 					);
 					echo form_input(array(
-						'type'=>'hidden',
+						'type'=>'text',
 						'name'=>'supplier_id',
 						'id'=>'supplier_id')
 						);?>
+						
 			</div>
 			<div class="col-xs-2">
 				<a id="remove_supplier_button" class="btn btn-danger btn-sm" title="Remove Supplier">
@@ -45,6 +46,7 @@
 				</a>
 			</div>
 		</div>
+		
 
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('expenses_supplier_tax_code'), 'supplier_tax_code', array('class'=>'control-label col-xs-3')); ?>

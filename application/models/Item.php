@@ -46,6 +46,101 @@ class Item extends CI_Model
 
 		return ($this->db->get('items')->num_rows() >= 1);
 	}
+	public function item_name_exists($name_item)
+	{
+		$this->db->select('lower(REPLACE(name," ","")) as name');
+		 $this->db->from('items');
+		 $this->db->where('deleted',0);
+		 $query=$this->db->get();
+		 $item_name=$query->result();
+		 foreach($item_name as $item_name)
+		 { 		
+			$item_name=$item_name->name;
+			if($item_name ==$name_item)
+			{
+				return "false";
+			}			
+		 }
+		 return "true";
+	}
+	public function delete_customer_catagory($id)
+	{
+
+
+		$this->db->where('item_id', $id);
+		$this->db->delete('item_customer_category_price');
+			
+	}
+
+
+	public function save_customer_category_price_slab(&$customer_category_price_data, $id )
+	{		//log_message('error',$e->getMessage());
+		
+		if(!$id || !$this->exists($id))
+		{
+
+	if($this->db->insert('item_customer_category_price', $customer_category_price_data))
+			{
+				$customer_category_price_data['id'] = $this->db->insert_id();
+
+				return TRUE;
+			}
+				
+			return FALSE;
+		}
+
+			else
+			{
+
+				try{					
+					
+				
+					if($this->db->insert('item_customer_category_price', $customer_category_price_data))
+					{
+						$customer_category_price_data['id'] = $this->db->insert_id();
+							return TRUE;
+					}
+					return FALSE;
+
+					
+					
+
+				 } catch(Exception $e){
+					log_message('error',$e->getMessage()); // use codeigniters built in logging library
+					show_error($e->getMessage()); // or echo $e->getMessage()
+					
+					error_log($this->db->affected_rows());
+					error_log($this->db->last_query());
+					$logger->error($e->getMessage(), ['exception' => $e]); 
+					
+				}
+				return TRUE;
+				
+			}
+			
+			}
+			public function save_hsn(&$hsn_code_table,$item_data){
+
+				$success = FALSE;
+				$this->db->trans_start();		
+		
+				$success = $this->db->insert('item_hsn_code',$hsn_code_table);
+				$this->db->trans_complete();
+		
+				$success &= $this->db->trans_status();
+				return $success;
+		
+			}
+	public function fetch_item_id()
+	{
+
+		$this->db->select('MAX(items.item_id) AS item_id');
+	    $query = $this->db->get();			
+		$fetched_item_id = $query->result_array();
+		// var_dump($fetched_item_id);
+		return $fetched_item_id;
+		
+	}
 
 	/*
 	Gets total of rows
@@ -235,16 +330,32 @@ class Item extends CI_Model
 
 
 	//editable text
-	public function save_qty_db($item_id,$receiving_quantity,$items_current_quantity){
+	public function save_qty_db($item_id,$receiving_quantity,$items_add_quantity,$items_current_quantity,$supplier_id){
 		$data = array(
 			'receiving_quantity' => $items_current_quantity,
-			//'add_quantity' => $items_add_quantity,
+			'supplier_id' => $supplier_id,
 			//'less_quantity' => $items_less_quantity
+			'add_quantity'=>$items_add_quantity
 			);
 		$this->db->where('item_id', $item_id);			
 		$result = $this->db->update('ospos_items', $data);
 		return $items_current_quantity;
 	}
+	public function save_supplier_details($item_id,$supplier_id,$items_add_quantity )
+	{
+		$item_data = array(
+			'item_id' => $item_id,
+			'supplier_id' => $supplier_id,
+			//'less_quantity' => $items_less_quantity
+			'add_quantity'=>$items_add_quantity
+			);
+			$this->db->insert('items_supplier_details', $item_data);
+	}
+	public function save_supplier_form_details($item_supplier_details)
+	{
+		$this->db->insert('items_supplier_details', $item_supplier_details);
+	}
+	
 	
 	/*
 	Returns all the items
@@ -310,7 +421,39 @@ class Item extends CI_Model
 	/*
 	Gets information about a particular item by item id or number
 	*/
-	public function get_info_by_id_or_number($item_name , $include_deleted = TRUE)
+	public function get_info_by_id_or_number($item_id, $include_deleted = TRUE)
+	{
+		$this->db->group_start();
+		$this->db->where('items.item_number', $item_id);
+
+		// check if $item_id is a number and not a string starting with 0
+		// because cases like 00012345 will be seen as a number where it is a barcode
+		if(ctype_digit($item_id) && substr($item_id, 0, 1) != '0')
+		{
+			$this->db->or_where('items.item_id', intval($item_id));
+		}
+
+		$this->db->group_end();
+
+		if(!$include_deleted)
+		{
+			$this->db->where('items.deleted', 0);
+		}
+
+		// limit to only 1 so there is a result in case two are returned
+		// due to barcode and item_id clash
+		$this->db->limit(1);
+
+		$query = $this->db->get('items');
+
+		if($query->num_rows() == 1)
+		{
+			return $query->row();
+		}
+
+		return '';
+	}
+	public function get_info_by_id_or_name($item_name , $include_deleted = TRUE)
 	{
 		$this->db->group_start();
 		$this->db->where('items.name',$item_name );
@@ -342,6 +485,7 @@ class Item extends CI_Model
 
 		return '';
 	}
+
 
 	/*
 	Get an item id given an item number
@@ -1029,5 +1173,25 @@ class Item extends CI_Model
 		}
 		return $item_name;
 	}
+	
+		public function get_supplier_suggestions($search)
+	{
+		
+		$suggestions = array();
+
+		$this->db->from('suppliers');
+		$this->db->join('people', 'suppliers.person_id = people.person_id');
+		$this->db->where('deleted', 0);
+		$this->db->like('company_name', $search);
+		$this->db->order_by('company_name', 'asc');
+		foreach($this->db->get()->result() as $row)
+		{
+			$suggestions[] = array('value' => $row->person_id, 'label' => $row->company_name);
+		}
+		return $suggestions;
+
+	}
+	
+	
 }
 ?>

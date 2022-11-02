@@ -405,5 +405,47 @@ class Receivings extends Secure_Controller
 
 		$this->_reload();
 	}
+	// public function bulk_entry_view()
+	// {
+	// 	//  $supplier_name =$this->Receiving->supplier_data();
+	//     //    foreach($supplier_name as $row)
+	// 	//    {
+	// 	//  	$supplier_name[$row->person_id]=$row->company_name;
+	// 	//    }
+	// 	//   $data['supplier_name']=$supplier_name;
+	// 	//    var_dump( $data['supplier_name']);
+
+	// 	$data['ro_receivings_info'] = $this->Ro_receiving->get_info($id,"");
+	// 	   $this->load->view("ro_receivings/counter_sale_form", $data);
+
+		
+	// }
+
+	public function bulk_entry_view($id = -1)
+	{
+		
+		$data['ro_receivings_info'] = $this->Ro_receiving->get_info($id,"");
+
+		if(empty($id))
+		{
+			$data['ro_receivings_info']->receiving_time = date('Y-m-d H:i:s');
+			$data['ro_receivings_info']->employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
+		}
+		$data['company_name'] = $this->Ro_receiving->companyname(); 
+		
+		$this->load->view("ro_receivings/counter_sale_form", $data);
+	}
+
+
+	public function suggest_category()
+	{
+		$suggestions = $this->xss_clean($this->Receiving->get_category_suggestions($this->input->get('term'), TRUE));
+
+		echo json_encode($suggestions);
+	}
+	
+
 }
+
+
 ?>

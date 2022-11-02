@@ -54,23 +54,35 @@ $(document).ready(function()
 				imgCSS: { width: 200 },
 				distanceFromCursor: { top:10, left:-210 }
 			})
-          
          
-            // Qty input field
-          //  $(this).find('th').eq(6).).hide();
+            var count=-1;
+		$('#table').find('tr').each(function(){ 
+		
+		count = count+1;
+				
+				$(this).find('td').eq(1).html('<td>'+count+'</td>'); 
+		
+	
+		 	}); 
+          var i=0;
+                    
             $('table').find('tr').each(function(){ 
             var row = $(this).closest("tr");
-            // var col0=row.find("td:eq(0)").sort(FALSE);
-            var col6=row.find("td:eq(8)").hide();
-            var col8=row.find("td:eq(7)").hide();
+            i=++i;
+            var item_id=row.find("td:eq(3)").text();
+           console.log(item_id);
+           var col6=row.find("td:eq(8)").hide();
+           var col8=row.find("td:eq(7)").hide();
+            var col8=row.find("td:eq(11)").hide();
 			$(this).find('th').eq(-10).after('<th class="" style=display:none; ><div class="th-inner sortable both">&nbsp;Add Qty &nbsp;</div><div class="fht-cell"></div></th>');
             $(this).find('th').eq(-1).after('<th style=display:none;>Less Quantity</th>');
             $(this).find('th').eq(7).after('<th class=""  style=display:none;><div class="th-inner sortable both">&nbsp;Current Qty &nbsp;</div><div class="fht-cell"></div></th>');
 			$(this).find('td').eq(6).after('<td style=width:100px;height:50px;><input type="number" id="items_add_quantity" class="form-control input-sm" min="null" max="null" step="0.50" value="0.00"></td>');			
-			$(this).find('td').eq(-1).after('<td><a href id="submit_qty" title="Save Quantity" ><span class="glyphicon glyphicon-ok"></span></a></td>');
+			$(this).find('td').eq(-1).after('<td><a href id="submit_qty" name="'+item_id+'" title="Save Quantity" ><span class="glyphicon glyphicon-ok"></span></a></td>');
 			$(this).find('td').eq(-1).after('<td><input type="hidden" id="items_less_quantity" class="form-control input-sm" value="0"></td>');
-			$(this).find('td').eq(7).after('<td style=width:10px><input type="number" id="items_current_quantity" class="form-control input-sm" value="0" readonly></td>');
-                
+			$(this).find('td').eq(7).after('<td style=width:100px;height:50px;><input type="text" name="supplier_name" id="supplier_name" class="form-control input-sm"  value="Type supplier_name"style=width:100px;height:50px;></td>');	
+                row.find("td:eq(3)").hide();
+                row.find("th:eq(2)").hide();
            
         });
         }
@@ -80,43 +92,60 @@ $(document).ready(function()
   
     $(document).on("change", '#items_add_quantity,#items_less_quantity',  function(e){
        
-        var valid= RegExp(/^-?\d*(\.5\d{0,0})?(\.0\d{0,0})?$/);
-       var quantity_reg = e.target.value ;
-
-        
-        if(status = valid.test(e.target.value)){
+        var valid= RegExp(/^[+-]?\d*(\.5\d{0,0})?(\.0\d{0,0})?$/);
+        var quantity_reg = e.target.value ;        
+        if(status = valid.test(parseFloat(e.target.value))){
                 var row = $(this).closest("tr");
-                var col2=row.find("td:eq(1)").text();
+                var col2=row.find("td:eq(3)").text();
                 var col8=row.find("td:eq(6)").text();
-                
                 receiving_quantity = parseFloat(row.find("td:eq(6)").text().replace(/,/g,''));
                 items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
              // items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
-                item_id = row.find("td:eq(1)").text();
-                final_val = parseFloat(receiving_quantity) + parseFloat( items_add_quantity ) ;    
-                var url="<?php echo site_url("Items/save_qty/"); ?>" + item_id ;
-                row.find("#items_current_quantity").val(final_val);
-                e.preventDefault();
-                console.log(row.closest('td'));
+                 item_id = row.find("td:eq(3)").text();
+                 final_val = parseFloat(receiving_quantity) + parseFloat( items_add_quantity ) ; 
+                    var url="<?php echo site_url("Items/save_qty/"); ?>" + item_id ;                
+                    row.find("#items_current_quantity").val(final_val);                
+                    e.preventDefault();                
+                   
+                    console.log(row.closest('td'));               
         }
-        else{
+        else{           
             alert('Please Enter the Correct Quantity .0 or .5');
+            $("#items_add_quantity").val('0.00');
         }
-       
     });
     
+
+    $(document).on("click", '#supplier_name',  function(e){
+          
+		$(this).attr('value', '');
+		$('input#supplier_name').autocomplete({
+		source: '<?php echo site_url("Items/suggest_supplier"); ?>',
+		minChars:0,
+		delay:10,
+		select: function (event, ui) {
+			
+			$(this).val(ui.item.label);
+            $(this).attr('id',ui.item.value);
+            supplier_id=ui.item.value;
+        //    alert(supplier_id);
+			return false;
+		}
+	});
+ 
+    });
+   
     $(document).on('click',"#submit_qty",function(evt){
-        
-	    alert('Do you want update the stock quantity');
+        alert('Do you want update the stock quantity?');
         $.ajax({
            type: 'POST',
 			url: "<?php echo site_url("Items/save_qty/"); ?>" ,
-            data: {'item_id':item_id,'receiving_quantity':receiving_quantity,'items_add_quantity':items_add_quantity,'items_current_quantity':final_val},   
+            data: {'item_id':item_id,'receiving_quantity':receiving_quantity,'items_add_quantity':items_add_quantity,'items_current_quantity':final_val,'supplier_id':supplier_id},   
             datatype : 'json',
             }).done(function (msg) {
-                
+                // alert(data);
                 alert("Stock quantity has been successfully updated " );
-	        window.location.reload();
+    	        window.location.reload();
                 
             }).fail((jqXHR, errorMsg) => {
                 alert(jqXHR.responseText, errorMsg);
@@ -156,11 +185,11 @@ window.addEventListener('mousewheel', function(e){
             title='<?php echo $this->lang->line('items_import_items_csv'); ?>'>
         <span class="glyphicon glyphicon-import">&nbsp;</span><?php echo $this->lang->line('common_import_csv'); ?>
     </button>
-
-    <button class='btn btn-info btn-sm pull-right modal-dlg' data-btn-new='<?php echo $this->lang->line('common_new') ?>' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url("$controller_name/view"); ?>'
+<button class='btn btn-info btn-sm pull-right modal-dlg'  data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url("$controller_name/view"); ?>'
             title='<?php echo $this->lang->line($controller_name . '_new'); ?>'>
         <span class="glyphicon glyphicon-tag">&nbsp;</span><?php echo $this->lang->line($controller_name. '_new'); ?>
     </button>
+    
 </div>
 
 <div id="toolbar">
@@ -176,7 +205,7 @@ window.addEventListener('mousewheel', function(e){
             <span class="glyphicon glyphicon-barcode">&nbsp;</span><?php echo $this->lang->line('items_generate_barcodes'); ?>
         </button> -->
         <?php echo form_input(array('name'=>'daterangepicker', 'class'=>'form-control input-sm', 'id'=>'daterangepicker')); ?>
-        <?php echo form_multiselect('filters[]', $filters, '', array('id'=>'filters', 'class'=>'selectpicker show-menu-arrow', 'data-none-selected-text'=>$this->lang->line('common_none_selected_text'), 'data-selected-text-format'=>'count > 1', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit')); ?>
+        <!-- <?php echo form_multiselect('filters[]', $filters, '', array('id'=>'filters', 'class'=>'selectpicker show-menu-arrow', 'data-none-selected-text'=>$this->lang->line('common_none_selected_text'), 'data-selected-text-format'=>'count > 1', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit')); ?> -->
         <?php
         
         if (count($stock_locations) > 1)

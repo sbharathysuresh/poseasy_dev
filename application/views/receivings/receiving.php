@@ -1,4 +1,8 @@
 <?php $this->load->view("partial/header"); ?>
+<script type="text/javascript">
+	dialog_support.init("a.modal-dlg");
+</script>
+
 
 <?php
 if (isset($error))
@@ -30,6 +34,25 @@ if (isset($success))
 				<li class="pull-left">
 					<?php echo form_dropdown('mode', $modes, $mode, array('onchange'=>"$('#mode_form').submit();", 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'fit')); ?>
 				</li>
+
+				<!-- <li class="pull-right">
+					<button id='new_button' class='btn btn-info btn-sm pull-right modal-dlg'
+						data-btn-submit='<?php echo $this->lang->line('common_submit') ?>'
+						data-btn-new='<?php echo $this->lang->line('common_new') ?>'
+						data-href='<?php echo site_url("ro_receivings/bluk_entry_view"); ?>'
+						title='<?php echo $this->lang->line('sales_new_item'); ?>'>
+						<span class="glyphicon glyphicon-tag">&nbsp</span><?php echo $this->lang->line('receivings_new_receiving'); ?>
+					</button>
+					</li> -->
+					<li class="pull-right">
+						<?php echo anchor($controller_name."/bulk_entry_view/", '<span class="glyphicon glyphicon-list">&nbsp</span>' . $this->lang->line('receivings_bulk_entry'),
+									array('class'=>'btn btn-primary btn-sm', 'id'=>'sales_takings_button', 'title'=>$this->lang->line('receivings_bulk_entry'))); ?>
+					</li>
+
+					<li class="pull-right">
+						<?php echo anchor($controller_name."/manage", '<span class="glyphicon glyphicon-list-alt">&nbsp</span>' . $this->lang->line('receivings_new_receiving'),
+									array('class'=>'btn btn-primary btn-sm', 'id'=>'sales_takings_button', 'title'=>$this->lang->line('receivings_new_receiving'))); ?>
+					</li>
 
 				<?php 
 				if ($show_stock_locations)
@@ -295,6 +318,7 @@ if (isset($success))
 							title='<?php echo $this->lang->line('receivings_new_supplier'); ?>'>
 						<span class="glyphicon glyphicon-user">&nbsp</span><?php echo $this->lang->line('receivings_new_supplier'); ?>
 					</button>
+					
 
 				</div>
 			<?php echo form_close(); ?>
@@ -426,6 +450,7 @@ $(document).ready(function()
 		delay:10,
 		autoFocus: false,
 		select:	function (a, ui) {
+			alert(a,ui);
 			$(this).val(ui.item.value);
 			$("#add_item_form").submit();
 			return false;

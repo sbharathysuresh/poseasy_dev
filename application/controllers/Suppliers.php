@@ -166,6 +166,11 @@ class Suppliers extends Persons
 			echo json_encode(array('success' => FALSE,'message' => $this->lang->line('suppliers_cannot_be_deleted')));
 		}
 	}
+	public function suppliers_details()
+	{
+		$this->load->view("suppliers/popup_form");
+	}
+	
 	
 }
 ?>

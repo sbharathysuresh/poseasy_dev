@@ -22,6 +22,6 @@ $lang["suppliers_id"] = "Supplier Id";
 $lang["suppliers_tax_id"] = "GST No";
 $lang["suppliers_update"] = "Update Supplier";
 $lang["suppliers_name"] = "Supplier Name";
-$lang["common_id "] = "Supplier ID";
+$lang["common_id "] = "S.No";
 
     

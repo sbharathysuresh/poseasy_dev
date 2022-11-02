@@ -173,7 +173,7 @@ class Items extends Secure_Controller
 
 	public function get_row($item_ids)
 	{
-		var_dump('get_row');
+		// var_dump('get_row');
 		$item_infos = $this->Item->get_multiple_info(explode(':', $item_ids), $this->item_lib->get_item_location());
 
 		$result = [];
@@ -188,14 +188,23 @@ class Items extends Secure_Controller
 
 	//save Quantity
 	public function save_qty() {
+	
 		$item_id = $_POST['item_id'];
 		$receiving_quantity = $_POST['receiving_quantity'];
-		//$items_add_quantity = $_POST['items_add_quantity'];
-		//$items_less_quantity = $_POST['items_less_quantity'];
+		$items_add_quantity = $_POST['items_add_quantity'];
+		$supplier_id = $_POST['supplier_id'];
 		$items_current_quantity = $_POST['items_current_quantity'];
-						
-		$this->Item->save_qty_db($item_id,$receiving_quantity,$items_current_quantity);
+					
+		$this->Item->save_qty_db($item_id,$receiving_quantity,$item_add_quantity,$items_current_quantity,$supplier_id);
+		 $this->Item->save_supplier_details($item_id,$supplier_id,$items_add_quantity );
+
 	}
+	public function item_name_stringcmp()
+	{
+	     $exists = $this->Item->item_name_exists($this->input->post('name'));
+		 echo $exists ;
+	}
+	
 
 	public function view($item_id = NEW_ITEM)
 	{
@@ -370,7 +379,15 @@ class Items extends Secure_Controller
 		{
 			$data['selected_low_sell_item'] = '';
 		}
-       
+		$data['customer_category_num'] = $this->Customers_category->get_total_rows();
+		$data['customer_category_inform'] = $this->Customers_category->customer_category_inform();
+		$data['customer_category_id']  = $this->Customers_category->customer_category_id();
+		$data['fetch_item_id']  =  $this->Customers_category->fetch_item_id();
+		if($item_id !== NEW_ITEM)
+		{
+		$data['item_customer_category_price_fetch'] = $this->Customers_category->item_customer_category_price_fetch($item_id);
+	   
+		}
 		$this->load->view('items/form', $data);
 	}
 
@@ -512,6 +529,8 @@ class Items extends Secure_Controller
 
 	public function save($item_id = NEW_ITEM)
 	{
+
+		$mode = "add";
 		$upload_success = $this->handle_image_upload();
 		$upload_data = $this->upload->data();
 		$receiving_quantity = parse_quantity($this->input->post('receiving_quantity'));
@@ -537,19 +556,36 @@ class Items extends Secure_Controller
 			'unit_price' => parse_decimals($this->input->post('unit_price')),
 			'reorder_level' => parse_quantity($this->input->post('reorder_level')),
 			'receiving_quantity' => $receiving_quantity,
+
+			//'tax_percent_1' => $this->input->post('tax_percent_1'),
+
+
 			'allow_alt_description' => $this->input->post('allow_alt_description') !== NULL,
 			'is_serialized' => $this->input->post('is_serialized') !== NULL,
 			'qty_per_pack' => $this->input->post('qty_per_pack') === NULL ? 1 : $this->input->post('qty_per_pack'),
 			'pack_name' => $this->input->post('pack_name') === NULL ? $default_pack_name : $this->input->post('pack_name'),
 			'low_sell_item_id' => $this->input->post('low_sell_item_id') === NULL ? $item_id : $this->input->post('low_sell_item_id'),
 			'deleted' => $this->input->post('is_deleted') !== NULL,
-			'hsn_code' => $this->input->post('hsn_code') === NULL ? '' : $this->input->post('hsn_code'),
+			'hsn_code' => $this->input->post('hsn_code'),
 			'branch' => $this->input->post('branch'),
 			'location' => $this->input->post('location'),
 			'rack' => $this->input->post('rack'),
 			'bin' => $this->input->post('bin'),
 			'pack_type' => $this->input->post('pack_type')
 		);
+
+		
+ 
+		log_message('info', 'item_id_before' .$item_id);
+		$cus_cat_counter =	$this->input->post('counter');	
+
+		$item_id_success =  $this->input->post('table_item_id');
+
+		if($item_id != -1){
+			$mode = "edit";
+			$item_id_success = $item_id;
+		}
+		log_message('info', 'item_id_after' .$item_id_success);
 
 		if($item_data['item_type'] == ITEM_TEMP)
 		{
@@ -580,7 +616,33 @@ class Items extends Secure_Controller
 		$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
 
 		if($this->Item->save($item_data, $item_id))
-		{
+		{			
+			if($mode == "edit"){
+				$this->Item->delete_customer_catagory($item_id);
+			}
+
+			for($counter = 0; $counter < $cus_cat_counter; $counter++){
+				$a = 'customer_category_price_';
+				$b = 'customer_category_name_'; 
+				$cus_cat = $a.$counter;
+				$cus_cat_name = $b.$counter;
+				
+				
+				$customer_category_price_data = array(		
+				'sales_price' => $this->input->post($cus_cat),
+				'customer_category_id' => $this->input->post($cus_cat_name),
+				 'item_id' =>$item_id_success		
+			);	
+
+				 
+			  $result = $this->Item->save_customer_category_price_slab($customer_category_price_data, $item_id);		
+			}
+
+			$hsn_code_table_data = array(
+				'hsn_code' => $this->input->post('hsn_code'),
+					
+			);		
+			 $result = $this->Item->save_hsn($hsn_code_table_data, $item_id);
 			$success = TRUE;
 			$new_item = FALSE;
 
@@ -613,7 +675,14 @@ class Items extends Secure_Controller
 				}
 				$success &= $this->Item_taxes->save($items_taxes_data, $item_id);
 			}
-
+			$supplier_details = array(		
+				'supplier_id' => empty($this->input->post('supplier_id')) ? NULL : intval($this->input->post('supplier_id')),
+				'add_quantity' => $receiving_quantity,
+				 'item_id' => $item_id_success		
+			);	
+	
+				 
+			  $result = $this->Item->save_supplier_form_details($supplier_details );
 			//Save item quantity
 			$stock_locations = $this->Stock_location->get_undeleted_all()->result_array();
 			foreach($stock_locations as $location)
@@ -672,6 +741,7 @@ class Items extends Secure_Controller
 				$message = $this->xss_clean($this->lang->line('items_successful_' . ($new_item ? 'adding' : 'updating')) . ' ' . $item_data['name']);
 
 				echo json_encode(array('success' => TRUE, 'message' => $message, 'id' => $item_id));
+
 			}
 			else
 			{
@@ -691,6 +761,7 @@ class Items extends Secure_Controller
 	public function check_item_number()
 	{
 		$exists = $this->Item->item_number_exists($this->input->post('item_number'), $this->input->post('item_id'));
+		// var_dump($exists);
 		echo !$exists ? 'true' : 'false';
 	}
 
@@ -937,7 +1008,7 @@ class Items extends Secure_Controller
 
 						if($is_update)
 						{
-							$item_data = array_merge($item_data, get_object_vars($this->Item->get_info_by_id_or_number($item_name )));
+							$item_data = array_merge($item_data, get_object_vars($this->Item->get_info_by_id_or_name($item_name )));
 						}
 					}
 					else
@@ -1283,6 +1354,12 @@ class Items extends Secure_Controller
 				}
 			}
 		}
+	}
+	public function suggest_supplier()
+	{
+		$suggestions = $this->xss_clean($this->Item->get_supplier_suggestions($this->input->get('term'), TRUE));
+
+		echo json_encode($suggestions);
 	}
 }
 ?>

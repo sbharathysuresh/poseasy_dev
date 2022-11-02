@@ -8,9 +8,10 @@ class Receiving extends CI_Model
 {
 	public function get_info($receiving_id)
 	{
+		$this->db->select('suppliers.company_name AS supplier_name');
 		$this->db->from('receivings');
 		$this->db->join('people', 'people.person_id = receivings.supplier_id', 'LEFT');
-		$this->db->join('suppliers', 'suppliers.person_id = receivings.supplier_id', 'LEFT');
+		$this->db->join('suppliers AS suppliers', 'suppliers.person_id = receivings.supplier_id', 'LEFT');
 		$this->db->where('receiving_id', $receiving_id);
 
 		return $this->db->get();
@@ -289,5 +290,53 @@ class Receiving extends CI_Model
 			)'
 		);
 	}
+
+	public function supplier_data()
+	{   
+		$this->db->from('suppliers');
+		$this->db->select('suppliers.person_id,suppliers.supplier_id' );
+		$query = $this->db->get();			
+		$supplier_data = $query->result();
+		return $supplier_data;
+
+	}
+	
+	public function get_category_suggestions($search)
+	{
+		
+		$suggestions = [];
+		$this->db->distinct();
+		 $this->db->select('suppliers.company_name','suppliers.person_id');
+		$this->db->from('suppliers');
+	
+		$this->db->like('suppliers.company_name', $search);
+		$this->db->where('deleted', 0);
+		$this->db->order_by('suppliers.company_name', 'asc');
+		foreach($this->db->get()->result() as $row)
+		{
+			$suggestions[] = array('value'=>$row->person_id,'label' => $row->company_name);
+		}
+
+		return $suggestions;
+	}
+	public function bluk_save(&$receivings_data, $id = FALSE)
+	{
+		if(!$id || !$this->exists($id))
+		{
+			if($this->db->insert('ro_receivings_accounts', $receivings_data))
+			{
+				$receivings_data['id'] = $this->db->insert_id();
+
+				return TRUE;
+			}
+
+			return FALSE;
+		}
+
+		$this->db->where('id', $id);
+
+		return $this->db->update('ro_receivings_accounts', $receivings_data);
+	}
+
 }
 ?>

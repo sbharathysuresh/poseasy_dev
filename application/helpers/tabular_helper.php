@@ -370,7 +370,7 @@ function get_suppliers_manage_table_headers()
 
 	$headers = array(
 		array('people.person_id' => $CI->lang->line('common_id ')),
-		array('company_name' => $CI->lang->line('suppliers_company_name')),
+		array('company_name' => $CI->lang->line('suppliers_company_name'),'escape' => FALSE),
 		array('agency_name' => $CI->lang->line('suppliers_agency_name')),
 		array('category' => $CI->lang->line('suppliers_category')),
 		array('last_name' => $CI->lang->line('suppliers_name')),
@@ -398,7 +398,8 @@ function get_supplier_data_row($supplier)
 
 	return array (
 		'people.person_id' => $supplier->person_id,
-		'company_name' => $supplier->company_name,
+		'company_name' => anchor($controller_name."/suppliers_details", $supplier->company_name,
+			array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))),
 		'agency_name' => $supplier->agency_name,
 		'category' => $supplier->category,
 		'last_name' => $supplier->last_name . " " . $supplier->first_name ,
@@ -423,16 +424,18 @@ function get_items_manage_table_headers()
 	$definition_names = $CI->Attribute->get_definitions_by_flags(Attribute::SHOW_IN_ITEMS);
 
 	$headers = array(
-		array('items.item_id' => $CI->lang->line('common_id')),
+		array('serial_number' => $CI->lang->line('common_serial_number')),
+	 array('items.item_id' => $CI->lang->line('common_id')),
 		//array('item_number' => $CI->lang->line('items_item_number')),
 		//array('company_name' => $CI->lang->line('suppliers_company_name')),
 		array('name' => $CI->lang->line('items_name')),
 		array('category' => $CI->lang->line('items_category')),
-		array('cost_price' => $CI->lang->line('items_cost_price')),
-		array('unit_price' => $CI->lang->line('items_unit_price')),
-		array('quantity' => $CI->lang->line('items_quantity')),
+	//  array('cost_price' => $CI->lang->line('items_cost_price')),
+	//  array('unit_price' => $CI->lang->line('items_unit_price')),
+	 array('quantity' => $CI->lang->line('items_quantity')),
 		array('add_quantity' => $CI->lang->line('items_add_quantity')),
-		array('current_quantity' => $CI->lang->line('items_current_quantity'))
+		// array('current_quantity' => $CI->lang->line('items_current_quantity')),
+		array('items_supplier_name' => $CI->lang->line('items_supplier_name'))
 		// array('branch' => $CI->lang->line('items_branch')),
 		// array('location' => $CI->lang->line('items_location')),
 		// array('rack' => $CI->lang->line('items_rack')),
@@ -519,16 +522,18 @@ function get_item_data_row($item)
 	$definition_names = $CI->Attribute->get_definitions_by_flags(Attribute::SHOW_IN_ITEMS);
 
 	$columns = array (
+		'serial_number'=>$item->item_id,
 		'items.item_id' => $item->item_id,
 		'item_number' => $item->item_number,
 		'name' => $item->name,
 		'company_name' => $item->company_name,
 		'category' => $item->category,
-		'cost_price' => to_currency($item->cost_price),
-		'unit_price' => to_currency($item->unit_price),
+		// 'cost_price' => to_currency($item->cost_price),
+		//  'unit_price' => to_currency($item->unit_price),
 		'quantity' => $item->receiving_quantity,
 		'add_quantity' => $item->add_quantity,
 		'current_quantity' => $item->current_quantity,
+		//  'items_supplier_name' =>$item->items_supplier_name,
 		// 'branch' => $item->branch,
 		// 'location' => $item->location,
 		// 'rack' => $item->rack,
@@ -554,6 +559,89 @@ function get_item_data_row($item)
 
 }
 
+function get_ro_receivings_manage_table_headers()
+{
+	$CI =& get_instance();
+
+	$headers = array(
+		array('id' => $CI->lang->line('ro_id')),
+		// array('category' => $CI->lang->line('ro_receiving_category')),
+		// array('invoice_no' => $CI->lang->line('invoice_no')),
+		array('company_name' => $CI->lang->line('company_name')),
+		array('supplier_name' => $CI->lang->line('supplier_name')),
+		array('opening_balance' => $CI->lang->line('opening_balance')),
+		array('purchase_amount' => $CI->lang->line('purchase_amount')),
+		array('paid_amount' => $CI->lang->line('paid_amount')),
+		array('payment_mode' => $CI->lang->line('payment_mode')),
+		array('purchase_return_amount' => $CI->lang->line('purchase_return_amount')),
+		array('closing_balance' => $CI->lang->line('closing_balance')),
+		array('purchase_return_qty' => $CI->lang->line('purchase_return_qty')),
+		array('discount' => $CI->lang->line('discount')),
+		array('pending_payables' => $CI->lang->line('pending_payables')),
+		array('last_purchase_qty' => $CI->lang->line('last_purchase_qty')),
+		// array('rate_difference' => $CI->lang->line('rate_difference')),
+		array('total_stock' => $CI->lang->line('total_stock')),
+		// array('gst_slab' => $CI->lang->line('gst_slab')),
+		// array('gst_amount' => $CI->lang->line('gst_amount')),
+		// array('purchase_date' => $CI->lang->line('purchase_date')),
+		// array('receiving_time' => $CI->lang->line('receiving_time')),
+		);
+
+	return transform_headers($headers);
+}
+
+/*
+Gets the html data row for the Ro Receivings
+*/
+function get_ro_receivings_data_row($ro_receivings_accounts,$data)
+{
+	$CI =& get_instance();
+	
+	if(empty($data))
+	{
+		$data = array(
+			'company_name'  => 'none',
+			'agency_name' => 'none',
+					
+		);
+		$company_name=$data['company_name'];
+		$agency_name=$data['agency_name'];
+	}
+	else
+	{
+		$company_name=$data[0]->company_name;
+		$agency_name=$data[0]->agency_name;
+	}
+ 
+	$controller_name = strtolower(get_class($CI));
+
+	return array (
+		'id' => $ro_receivings_accounts->id ,
+		// 'category' => $ro_receivings_accounts->category,
+		// 'invoice_no' => $ro_receivings_accounts->invoice_no,
+		'company_name' =>$company_name,
+		'supplier_name' =>$agency_name,
+		'opening_balance' => $ro_receivings_accounts->opening_balance,
+		'purchase_amount' => $ro_receivings_accounts->purchase_amount,
+		'paid_amount' => $ro_receivings_accounts->paid_amount,
+		'payment_mode' => $ro_receivings_accounts->payment_mode,
+		'closing_balance' => $ro_receivings_accounts->closing_balance,
+		'purchase_return_amount' => $ro_receivings_accounts->purchase_return_amount,
+		'purchase_return_qty' => $ro_receivings_accounts->purchase_return_qty,
+		'discount' => $ro_receivings_accounts->discount,
+		'pending_payables' => $ro_receivings_accounts->pending_payables,
+		'last_purchase_qty' => $ro_receivings_accounts->last_purchase_qty,
+		'rate_difference' => $ro_receivings_accounts->rate_difference,
+		'total_stock' => $ro_receivings_accounts->total_stock,
+		'gst_slab' => $ro_receivings_accounts->gst_slab,
+		'gst_amount' => $ro_receivings_accounts->gst_amount,
+		'purchase_date' => $ro_receivings_accounts->purchase_date,
+		'receiving_time' => $ro_receivings_accounts->receiving_time,
+		'edit' => anchor($controller_name."/view/$ro_receivings_accounts->id", '<span class="glyphicon glyphicon-edit"></span>',
+			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
+		)
+	);
+}
 
 /*
 Get the header for the giftcard tabular view
@@ -764,7 +852,7 @@ function get_master_manage_table_headers()
 		array('item_master_id' => $CI->lang->line('item_category_id')),
 		array('item_category_name' => $CI->lang->line('item_category_name')),
 		array('item_category_description' => $CI->lang->line('item_category_description')),
-		array('item_category_date' => $CI->lang->line('item_category_date')),
+		// array('item_category_date' => $CI->lang->line('item_category_date')),
 	);
 
 	return transform_headers($headers);
@@ -783,7 +871,7 @@ function get_master_data_row($master)
 		'item_master_id' => $master->item_master_id ,
 		'item_category_name' => $master->item_master_name,
 		'item_category_description' => $master->item_master_disc,
-		'item_category_date' => $master->category_date,
+		// 'item_category_date' => $master->category_date,
 		'edit' => anchor($controller_name."/view/$master->item_master_id", '<span class="glyphicon glyphicon-edit"></span>',
 			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
 		)
@@ -802,8 +890,8 @@ function get_customer_category_manage_table_headers()
 		array('customer_category_name' => $CI->lang->line('customer_category_name')),
 		array('customer_category_disc' => $CI->lang->line('customer_category_disc')),
 		array('customer_category_price' => $CI->lang->line('customer_category_price')),
-		array('customer_category_date' => $CI->lang->line('customer_category_date')),
-		array('customer_category_update_date' => $CI->lang->line('customer_category_update_date')),
+		// array('customer_category_date' => $CI->lang->line('customer_category_date')),
+		// array('customer_category_update_date' => $CI->lang->line('customer_category_update_date')),
 
 	);
 
@@ -824,8 +912,8 @@ function get_customer_category_data_row($customer_category)
 		'customer_category_name' => $customer_category->customer_category_name,
 		'customer_category_disc' => $customer_category->customer_category_disc,
 		'customer_category_price' => $customer_category->customer_category_price,
-		'customer_category_date' => $customer_category->customer_category_date,
-		'customer_category_update_date'=> $customer_category->customer_category_update_date,
+		// 'customer_category_date' => $customer_category->customer_category_date,
+		// 'customer_category_update_date'=> $customer_category->customer_category_update_date,
 
 		'edit' => anchor($controller_name."/view/$customer_category->customer_category_id", '<span class="glyphicon glyphicon-edit"></span>',
 			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))

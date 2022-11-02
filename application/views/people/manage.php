@@ -14,6 +14,20 @@ $(document).ready(function()
 		{
 			var email_disabled = $("td input:checkbox:checked").parents("tr").find("td a[href^='mailto:']").length == 0;
 			$("#email").prop('disabled', email_disabled);
+			var count=-1;
+		$('#table').find('tr').each(function(){ 
+		
+		count = count+1;
+				
+				$(this).find('td').eq(1).html('<td>'+count+'</td>'); 
+		
+	
+			}); 
+			// $('td:nth-of-type(3)').each(function(index){
+			// 	var val=$(this).text();
+			// 	$(this).html("<a href= >"+val+"</a>");
+			// 	})
+			
 		}
 	});
 

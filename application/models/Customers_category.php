@@ -27,6 +27,58 @@ class Customers_category extends CI_Model
 
 		return $this->db->count_all_results();
 	}
+	public function customer_category_inform()
+	{
+		$this->db->select('customer_category_name');
+		$this->db->from('customer_category');
+		$this->db->where('deleted',0);
+	    $query = $this->db->get();			
+		$customer_category_name = $query->result_array();
+		
+		return $customer_category_name;
+
+		
+	}
+
+
+	public function customer_category_id()
+	{
+		$this->db->select('customer_category_id');
+		$this->db->from('customer_category');
+		$this->db->where('deleted',0);
+	    $query = $this->db->get();			
+		$customer_category_name = $query->result_array();
+		
+		return $customer_category_name;
+
+		
+	}
+
+
+	public function fetch_item_id()
+	{
+		$this->db->select('item_id');
+		$this->db->from('items');
+		$this->db->where('deleted',0);
+	    $query = $this->db->get();			
+		$customer_category_name = $query->result_array();
+		
+		return $customer_category_name;
+
+		
+	}
+	public function item_customer_category_price_fetch($item_id)
+	{
+
+		$this->db->select('sales_price');
+		$this->db->from('item_customer_category_price');
+		$this->db->where('item_id',$item_id);
+	    $query = $this->db->get();			
+		$item_customer_category_price_fetched_data = $query->result_array();
+		return $item_customer_category_price_fetched_data;
+
+		
+	}
 
 	/*
 	Gets information about a particular category
