@@ -517,7 +517,7 @@
 				
 			}
 
-			$item_id_new_counter = $item_id_new[$new-2] + 2;
+			// $item_id_new_counter = $item_id_new[$new-1] + 1;
 
 			?>
 
@@ -564,7 +564,7 @@ function addFields()
 			var flag = <?php echo $check_null_flag; ?>;	
 		
 			var sale_price=<?php echo json_encode($customer_category_price_fetched); ?>;
-		console.log(sale_price.length);
+		// console.log(sale_price.length);
 		if(flag==1)
 		{
 			var jQueryArray3 = <?php echo json_encode($customer_category_price_fetched); ?>;
@@ -594,7 +594,7 @@ function addFields()
 
 				 $("#salespricediv").after('<div class="form-group form-group-sm" style=display:none;><label class=" control-label col-xs-3">'+number + '</label><div class="col-xs-4"><div class="input-group input-group-sm"><input type="text" value="'+number+'" name="counter" id="customer_category_price_'+i+'" class="form-control input-sm" onclick="this.select();"></div></div></div>');
 
-				 $("#salespricediv").after('<div class="form-group form-group-sm" style=display:none; ><label class=" control-label col-xs-3">'+<?php echo $item_id_new_counter; ?>+ '</label><div class="col-xs-4"><div class="input-group input-group-sm"><input type="text" value="'+<?php echo $item_id_new_counter; ?>+'" name="table_item_id" id="customer_category_price_'+i+'" class="form-control input-sm" onclick="this.select();"></div></div></div>');
+				
 				
             }
   }
@@ -655,9 +655,7 @@ $(document).ready(function()
 
 	$('#category').load(function(){
 
-		// var_dump("hi");
-
-	});
+			});
 
 	$('#category').autocomplete({
 		source: "<?php echo site_url('items/suggest_category');?>",
@@ -698,8 +696,7 @@ $(document).ready(function()
 						{
 							dialog_support.hide();
 						}
-						console.log(response);
-						//alert('iniside table refresh');
+						// console.log(response);
 						table_support.handle_submit('<?php echo site_url('items'); ?>', response, stay_open);
 						 window.location.reload();
 						init_validation();
@@ -719,13 +716,13 @@ rules:
 		remote: 
 		{
 			
-			url: "<?php echo site_url($controller_name . '/item_name_stringcmp')?>",
+			url: "<?php echo site_url($controller_name . '/item_name_stringcmp/'.$check_null_flag)?>",
 			type: 'POST',
 			data: {
 				
 				'name' : function()
 				{
-				//  alert( $('#name').val());
+				
 					 return  $('#name').val();
 				},
 		}
