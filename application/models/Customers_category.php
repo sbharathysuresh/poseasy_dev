@@ -70,13 +70,22 @@ class Customers_category extends CI_Model
 	public function item_customer_category_price_fetch($item_id)
 	{
 
+		
+
 		$this->db->select('sales_price');
 		$this->db->from('item_customer_category_price');
-		$this->db->where('item_id',$item_id);
-	    $query = $this->db->get();			
-		$item_customer_category_price_fetched_data = $query->result_array();
-		return $item_customer_category_price_fetched_data;
+		$this->db->where('item_id',$item_id);		
+	    $query = $this->db->get();	
+		if($query->num_rows()!=0){
+			$item_customer_category_price_fetched_data = $query->result_array();
+			return $item_customer_category_price_fetched_data;
 
+
+		}else{
+			$null_flag = 'null';
+			return  $null_flag;
+		}	
+		
 		
 	}
 

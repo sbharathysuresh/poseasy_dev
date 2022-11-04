@@ -163,7 +163,7 @@ $autoload['model'] = array(
 	'Tax_code',
 	'Tax_jurisdiction',
 	'Master',
-	'Customers_category',
-	'Ro_receiving'
+	'Customers_category'
+	
 
 );

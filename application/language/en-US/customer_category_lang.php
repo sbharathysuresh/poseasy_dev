@@ -2,7 +2,7 @@
 
 $lang["customer_category_new"] = "New Customer Category";
 $lang["customer_category_id"] = "ID";
-$lang["customer_category_name"] = "Customer Name";
+$lang["customer_category_name"] = "Customer Category";
 $lang["customer_category_disc"] = "Customer Description";
 $lang["customer_category_price"] = "Price";
 $lang["customer_category_new"] = "New Customer Category";
@@ -18,4 +18,5 @@ $lang["customer_category_successful_deleted"]= "Customer Record deleted successf
 $lang["customer_category_confirm_delete"] = "Are you sure you want to delete the selected Customer Details?";
 $lang["customer_category_one_or_multiple"]="Customer Category";
 $lang["customer_category_cannot_be_deleted"]="Could not delete Category customer(s)";
+$lang["customer_category_discount"]="Discount";
  

@@ -155,11 +155,13 @@
 		</div>
 
 		<div class="form-group form-group-sm">
-			<?php echo form_label($this->lang->line('items_supplier'), 'supplier', array('class'=>'control-label col-xs-3')); ?>
+			<?php echo form_label($this->lang->line('items_supplier'), 'supplier', array('class'=>'requiredcontrol-label col-xs-3')); ?>
 			<div class='col-xs-8'>
 				<?php echo form_dropdown('supplier_id', $suppliers, $selected_supplier, array('class'=>'form-control')); ?>
 			</div>
 		</div>
+
+		
 
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('items_cost_price'), 'cost_price', array('class'=>'required control-label col-xs-3')); ?>
@@ -330,7 +332,7 @@
 		}
 		?>
 
-		<div class="form-group form-group-sm">
+		<div class="form-group form-group-sm" id="receiving_quantity_display">
 			<?php echo form_label($this->lang->line('items_receiving_quantity'), 'receiving_quantity', array('class'=>'required control-label col-xs-3')); ?>
 			<div class='col-xs-4'>
 				<?php echo form_input(array(
@@ -523,8 +525,13 @@
 
 
 <?php
+			//echo $item_customer_category_price_fetch;
+
+
+			
 			$check_name = $item_info->name;	
 			$check_null_flag = 2;
+			$check_item_id_null = 2;
 			$f = 0;
 			$customer_category_price_fetched=array();
 			if($check_name == "")
@@ -533,15 +540,23 @@
 			}
 			else
 			{
-			foreach($item_customer_category_price_fetch as $supplier)
-			{
-			$customer_category_price_fetched[$f] = $supplier['sales_price'];//edit		
-			$f++;				
-			}
+				if($item_customer_category_price_fetch == "null"){
+					
+					$check_item_id_null = 1;
+				}else{
+					foreach($item_customer_category_price_fetch as $supplier)
+					{
+					$customer_category_price_fetched[$f] = $supplier['sales_price'];//edit		
+					$f++;				
+					}
+					
+				}
 					
 		
 				$check_null_flag =1;
-			}	
+			}
+			echo $check_item_id_null;
+			
 
 
 			?>
@@ -549,6 +564,21 @@
 <?php echo form_close(); ?>
 
 <script type="text/javascript">
+
+
+function receiving_quantity_display_fun(){
+	var receiving_quantity_display = document.getElementById("receiving_quantity_display");
+	var flag = <?php echo $check_null_flag; ?>;
+
+	if(flag == 0){
+		//alert("new");
+	}
+	if(flag == 1){
+		//alert("edit");
+		receiving_quantity_display.style.display = "none";
+	}
+
+}
 
 function addFields()
 {
@@ -562,6 +592,10 @@ function addFields()
 
 			var jQueryArray2 = <?php echo json_encode($category_info_new); ?>;
 			var flag = <?php echo $check_null_flag; ?>;	
+
+
+			var check_itemid_null = <?php echo $check_item_id_null; ?>;
+				
 		
 			var sale_price=<?php echo json_encode($customer_category_price_fetched); ?>;
 		// console.log(sale_price.length);
@@ -582,13 +616,24 @@ function addFields()
 			
 			if(flag == 0)
 			{
+				//addmode
 				 $("#salespricediv").after('<div class="form-group form-group-sm"><label class=" control-label col-xs-3">'+string1 + '</label><div class="col-xs-4"><div class="input-group input-group-sm"><?php if (!currency_side()): ?><span class="input-group-addon input-sm"><b><?php echo "₹"; ?></b></span><?php endif; ?><input type="text" name="customer_category_price_'+i+'" value="" id="customer_category_price_'+i+'" class="form-control input-sm" value="<?php echo $item_info->location; ?>" onclick="this.select(); "></div></div></div>');
 				 
 			 }
 			 if(flag==1)
-			 {				
+			 {
+				//editmode
+				
+				//alert(check_itemid_null);
+				if(check_itemid_null == 2){
+								
 				 $("#salespricediv").after('<div class="form-group form-group-sm"><label class=" control-label col-xs-3">'+string1 + '</label><div class="col-xs-4"><div class="input-group input-group-sm"><?php if (!currency_side()): ?><span class="input-group-addon input-sm"><b><?php echo "₹"; ?></b></span><?php endif; ?><input type="text" name="customer_category_price_'+i+'" value="'+jQueryArray3[i]+'" id="customer_category_price_'+i+'" class="form-control input-sm" value="<?php echo $item_info->location; ?>" onclick="this.select(); "></div></div></div>');
-				 
+				}
+				if(check_itemid_null == 1){
+					$("#salespricediv").after('<div class="form-group form-group-sm"><label class=" control-label col-xs-3">'+string1 + '</label><div class="col-xs-4"><div class="input-group input-group-sm"><?php if (!currency_side()): ?><span class="input-group-addon input-sm"><b><?php echo "₹"; ?></b></span><?php endif; ?><input type="text" name="customer_category_price_'+i+'" value="0" id="customer_category_price_'+i+'" class="form-control input-sm" value="<?php echo $item_info->location; ?>" onclick="this.select(); "></div></div></div>');
+				}
+
+
 			 }
 				 $("#salespricediv").after('<div class="form-group form-group-sm"  style=display:none;><label class=" control-label col-xs-3">'+jQueryArray[i] + '</label><div class="col-xs-4"><div class="input-group input-group-sm"><input type="text" value="'+jQueryArray2[i]+'" name="customer_category_name_'+i+'" id="customer_category_price_'+i+'" class="form-control input-sm"  onclick="this.select();"></div></div></div>');
 
@@ -604,6 +649,8 @@ function addFields()
 //validation and submit handling
 $(document).ready(function()
 { 
+
+	receiving_quantity_display_fun();
 	addFields();
 
 	$('#new').click(function() {
@@ -710,6 +757,7 @@ $(document).ready(function()
 
 rules:
 {
+	supplier_id: 'required',
 	name:
 	{
 		required: true,
@@ -791,6 +839,11 @@ rules:
 
 messages:
 {
+	supplier_id:
+	{
+		required: "<?php echo $this->lang->line('supplier_name_required'); ?>"
+
+	},
 	name:
 	{ 
 		  required:  "<?php echo $this->lang->line('items_name_required'); ?>",

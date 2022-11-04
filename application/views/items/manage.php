@@ -3,6 +3,8 @@
 <script type="text/javascript">
 $(document).ready(function()
 {
+    supplier_id = 0;
+    item_id = 0; 
     
     $('#generate_barcodes').click(function()
     {
@@ -56,68 +58,87 @@ $(document).ready(function()
 			})
          
             var count=-1;
-		$('#table').find('tr').each(function(){ 
-		
-		count = count+1;
-				
-				$(this).find('td').eq(1).html('<td>'+count+'</td>'); 
-		
-	
-		 	}); 
-          var i=0;
                     
-            $('table').find('tr').each(function(){ 
-            var row = $(this).closest("tr");
-            i=++i;
-            var item_id=row.find("td:eq(3)").text();
-           console.log(item_id);
-           var col6=row.find("td:eq(8)").hide();
-           var col8=row.find("td:eq(7)").hide();
-            var col8=row.find("td:eq(11)").hide();
-			$(this).find('th').eq(-10).after('<th class="" style=display:none; ><div class="th-inner sortable both">&nbsp;Add Qty &nbsp;</div><div class="fht-cell"></div></th>');
-            $(this).find('th').eq(-1).after('<th style=display:none;>Less Quantity</th>');
-            $(this).find('th').eq(7).after('<th class=""  style=display:none;><div class="th-inner sortable both">&nbsp;Current Qty &nbsp;</div><div class="fht-cell"></div></th>');
-			$(this).find('td').eq(6).after('<td style=width:100px;height:50px;><input type="number" id="items_add_quantity" class="form-control input-sm" min="null" max="null" step="0.50" value="0.00"></td>');			
-			$(this).find('td').eq(-1).after('<td><a href id="submit_qty" name="'+item_id+'" title="Save Quantity" ><span class="glyphicon glyphicon-ok"></span></a></td>');
-			$(this).find('td').eq(-1).after('<td><input type="hidden" id="items_less_quantity" class="form-control input-sm" value="0"></td>');
-			$(this).find('td').eq(7).after('<td style=width:100px;height:50px;><input type="text" name="supplier_name" id="supplier_name" class="form-control input-sm"  value="Type supplier_name"style=width:100px;height:50px;></td>');	
-                row.find("td:eq(3)").hide();
-                row.find("th:eq(2)").hide();
-           
-        });
-        }
-    });
-
-
-  
-    $(document).on("change", '#items_add_quantity,#items_less_quantity',  function(e){
-       
-        var valid= RegExp(/^[+-]?\d*(\.5\d{0,0})?(\.0\d{0,0})?$/);
-        var quantity_reg = e.target.value ;        
-        if(status = valid.test(parseFloat(e.target.value))){
-                var row = $(this).closest("tr");
-                var col2=row.find("td:eq(3)").text();
-                var col8=row.find("td:eq(6)").text();
-                receiving_quantity = parseFloat(row.find("td:eq(6)").text().replace(/,/g,''));
-                items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
-             // items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
-                 item_id = row.find("td:eq(3)").text();
-                 final_val = parseFloat(receiving_quantity) + parseFloat( items_add_quantity ) ; 
-                    var url="<?php echo site_url("Items/save_qty/"); ?>" + item_id ;                
-                    row.find("#items_current_quantity").val(final_val);                
-                    e.preventDefault();                
+                    $('table').find('tr').each(function(){ 
+                    var row = $(this).closest("tr");
+                    var item_id=row.find("td:eq(2)").text();
+                
+                        count = count+1;
+                        
+                        $(this).find('td').eq(1).html('<td id='+item_id+'>'+count+'</td>'); 
+                 
+                    var i=0;
+                    i=++i;
+                    //  var item_id=row.find("td:eq(3)").text();
+                    console.log(item_id);
+                    var col6=row.find("td:eq(8)").hide();
+                    var col8=row.find("td:eq(7)").hide();
+                    var col8=row.find("td:eq(11)").hide();
+                    $(this).find('th').eq(-10).after('<th class="" style=display:none; ><div class="th-inner sortable both">&nbsp;Add Qty &nbsp;</div><div class="fht-cell"></div></th>');
+                    $(this).find('th').eq(-1).after('<th style=display:none;>Less Quantity</th>');
+                    $(this).find('th').eq(7).after('<th class=""  style=display:none;><div class="th-inner sortable both">&nbsp;Current Qty &nbsp;</div><div class="fht-cell"></div></th>');
+                    $(this).find('td').eq(6).after('<td style=width:100px;height:50px;><input type="number" id="items_add_quantity" name="'+item_id+'" class="form-control input-sm" min="null" max="null" step="0.50" value="" placeholder="0.00" required></td>');			
+                    $(this).find('td').eq(-1).after('<td><a href id="submit_qty" name="'+item_id+'" title="Save Quantity" class="btn btn-info btn-sm disabled"><span class="glyphicon glyphicon-ok id="submit_span"></span></a></td>');
+                    $(this).find('td').eq(-1).after('<td><input type="hidden" id="items_less_quantity" class="form-control input-sm" value="0"></td>');
+                    $(this).find('td').eq(7).after('<td style=width:100px;height:50px;><input type="text" name="supplier_name" id="supplier_name" class="form-control input-sm" placeholder="Type Supplier Name" value="" style=width:150px; required></td>');	
+                        row.find("td:eq(3)").hide();
+                        row.find("th:eq(2)").hide();
                    
-                    console.log(row.closest('td'));               
-        }
-        else{           
-            alert('Please Enter the Correct Quantity .0 or .5');
-            $("#items_add_quantity").val('0.00');
-        }
-    });
-    
+                });
+                var myClasses = document.querySelectorAll('.btn.btn-default.btn-sm.dropdown-toggle');
+               
+                myClasses[0].style.display = 'none';
+            
+                //myExportOptions.eq(1).remove();
+                $('ul li:contains(JSON)').first().remove();
+                $('ul li:contains(XML)').first().remove();
+                $('ul li:contains(TXT)').first().remove();
+                $('ul li:contains(CSV)').first().remove();
+                $('ul li:contains(SQL)').first().remove();
+        
+                }
+            });
+        
+                 $('[data-type="excel"]').click(function(event) {
+                window.location.reload();
+                console.log('[data-type="excel"]');
+                });
+        
+                $('[data-type="pdf"]').click(function(event) {
+                        window.location.reload();
+                        console.log('[data-type="pdf"]');
+                });
+                
+            $(document).on("change", '#items_add_quantity',  function(e){
+               console.log($(this).attr("name"));
+                var current_row = $(this).attr("name");
+               // alert('input[name='+current_row+']');
+                $('a[name='+current_row+']').removeClass('btn btn-info btn-sm disabled').addClass( "btn btn-info btn-sm" );
+                var valid= RegExp(/^[+-]?\d*(\.5\d{0,0})?(\.0\d{0,0})?$/);
+                var quantity_reg = e.target.value ;        
+                if(status = valid.test(parseFloat(e.target.value))){
+                        var row = $(this).closest("tr");
+                        var col2=row.find("td:eq(3)").text();
+                        var col8=row.find("td:eq(6)").text();
+                        receiving_quantity = parseFloat(row.find("td:eq(6)").text().replace(/,/g,''));
+                        items_add_quantity = parseFloat(row.find("#items_add_quantity").val());
+                     // items_less_quantity = parseFloat(row.find("#items_less_quantity").val());
+                        item_id = row.find("td:eq(3)").text();
+                        final_val = parseFloat(receiving_quantity) + parseFloat( items_add_quantity ) ; 
+                        var url="<?php echo site_url("Items/save_qty/"); ?>" + item_id ;                
+                        row.find("#items_current_quantity").val(final_val);                
+                        e.preventDefault();                
+                           
+                        console.log(row.closest('td'));               
+                }
+                else{           
+                    alert('Please Enter the Correct Quantity .0 or .5');
+                    $("#items_add_quantity").val('0.00');
+                }
+            }); 
 
     $(document).on("click", '#supplier_name',  function(e){
-          
+         
 		$(this).attr('value', '');
 		$('input#supplier_name').autocomplete({
 		source: '<?php echo site_url("Items/suggest_supplier"); ?>',
@@ -136,6 +157,22 @@ $(document).ready(function()
     });
    
     $(document).on('click',"#submit_qty",function(evt){
+        //console.log("i am in");
+        console.log(supplier_id);
+        console.log(item_id);
+        // console.log(receiving_quantity);
+        // console.log(items_add_quantity);
+        // console.log(final_val);
+       
+        if(supplier_id == 0){
+            alert("Please select supplier name");
+            //evt.preventDefault();
+           // return FALSE;
+        }else if(item_id==0){
+            alert("Please select item id");
+            
+        }
+        else{
         alert('Do you want update the stock quantity?');
         $.ajax({
            type: 'POST',
@@ -150,6 +187,9 @@ $(document).ready(function()
             }).fail((jqXHR, errorMsg) => {
                 alert(jqXHR.responseText, errorMsg);
         });
+        }
+            evt.preventDefault();
+            // return FALSE;
        
   
  });

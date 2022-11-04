@@ -369,6 +369,7 @@ class Items extends Secure_Controller
 		if($item_id !== NEW_ITEM)
 		{
 		$data['item_customer_category_price_fetch'] = $this->Customers_category->item_customer_category_price_fetch($item_id);
+		
 	   
 		}
 		$this->load->view('items/form', $data);
@@ -911,6 +912,7 @@ class Items extends Secure_Controller
 	public function delete()
 	{
 		$items_to_delete = $this->input->post('ids');
+		
 
 		if($this->Item->delete_list($items_to_delete))
 		{
@@ -921,6 +923,7 @@ class Items extends Secure_Controller
 		{
 			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_cannot_be_deleted')));
 		}
+		//$this->Item->delete_list_of_cus_cat_price($items_to_delete);
 	}
 
 	public function generate_csv_file()

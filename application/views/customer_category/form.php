@@ -101,13 +101,36 @@ input:checked + .slider .off
 			</div>
 		</div>
 
-        <div class="form-group form-group-sm">
+
+
+		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('customer_category_price'), 'customer_category_price', array('class'=>'required control-label col-xs-3')); ?>
 			<div class='col-xs-4'>
 			<?php echo form_input(array(
 						'name'=>'customer_category_price',
 						'id'=>'customer_category_price',
 						'class'=>'form-control input-sm',
+						'value'=>$category_info->customer_category_price)
+						);?>
+			
+			</div>
+			
+
+		<div class="col-xs-4">
+					<div class="input-group input-group-sm">
+					
+						</div>
+					</div>
+				</div>
+
+        <div class="form-group form-group-sm">
+			<?php echo form_label($this->lang->line('customer_category_discount'), 'customer_category_discount', array('class'=>'required control-label col-xs-3')); ?>
+			<div class='col-xs-4'>
+			<?php echo form_input(array(
+						'name'=>'customer_category_discount',
+						'id'=>'customer_category_discount',
+						'class'=>'form-control input-sm',
+						'readonly'=>'true',
 						'value'=>$category_info->customer_category_price)
 						);?>
 			
@@ -152,12 +175,12 @@ $(document).ready(function()
 	$("#off").on('click change',function()
 	   {
 		
-	$('#customer_category_price').val('%',customer_category_price);
+	$('#customer_category_discount').val('%',customer_category_discount);
 
     });
 	$("#on").on('click change',function()
 	   {
-		$('#customer_category_price').val('₹',customer_category_price);	
+		$('#customer_category_discount').val('₹',customer_category_discount);	
 
     });
 	
@@ -179,7 +202,13 @@ $(document).ready(function()
 
 		rules:
 		{
-			customer_category_name: 'required'
+			customer_category_name: 'required',
+			customer_category_price:
+		{	
+			min:1,
+			required: true,
+			remote: "<?php echo site_url($controller_name . '/check_numeric')?>"
+		},
 		},
 
 		messages:
